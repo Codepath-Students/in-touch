@@ -1,4 +1,3 @@
-// ...existing code...
 import React from "react";
 import { Heart, Calendar, MessageCircle, Users, Sparkles, Map, Clock } from "lucide-react";
 
@@ -17,11 +16,11 @@ const Feature = ({ icon: Icon, title, children }) => {
 };
   return (
     <div className="app-shell">
-      <div className="mx-auto w-full max-w-7xl px-5 py-8 flex flex-col gap-10">
+      <div className="mx-auto w-full rounded-md max-w-7xl px-5 py-8 flex flex-col gap-10">
         {/* Framed surface */}
         <div className="surface-framed px-6 pt-6 pb-12 flex flex-col gap-12">
           {/* Header */}
-          <header className="flex items-center justify-between">
+          <header className="flex items-center justify-around">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-[var(--color-primary-600)] text-white shadow">
                 <Heart className="h-5 w-5" />
@@ -30,7 +29,7 @@ const Feature = ({ icon: Icon, title, children }) => {
                 In Touch
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">t
               <button
                 className="btn-ghost"
                 onClick={() => onAuth('login')}
@@ -52,7 +51,7 @@ const Feature = ({ icon: Icon, title, children }) => {
                 Stay Connected with the People Who Matter Most
               </h1>
               <p className="mx-auto max-w-2xl text-base text-[var(--color-muted)]">
-                Life gets busy—relationships shouldn&apos;t fade. In Touch brings structure,
+                Life gets busy. Relationships shouldn't fade. In Touch brings structure,
                 warmth, and gentle reminders to help you nurture meaningful connections.
               </p>
               <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -64,12 +63,6 @@ const Feature = ({ icon: Icon, title, children }) => {
                 </button>
                 <button className="btn-ghost">
                   Learn More
-                </button>
-                <button
-                  className="btn-ghost"
-                  onClick={() => onAuth('login')}
-                >
-                  Log In
                 </button>
               </div>
             </section>
