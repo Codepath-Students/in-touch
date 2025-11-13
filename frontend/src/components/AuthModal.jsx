@@ -32,25 +32,25 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
             onClick={() => setTab("google")}
             type="button"
           >
-            <Chrome className="h-4 w-4" /> Google
+            <Chrome className="h-5 w-5" /> Google
           </button>
           <button
             className={`btn-switch ${tab === "credentials" ? "active" : ""}`}
             onClick={() => setTab("credentials")}
             type="button"
           >
-            <Mail className="h-4 w-4" />{" "}
+            <Mail className="h-5 w-5" />{" "}
             {mode === "login" ? "Email Login" : "Email Signup"}
           </button>
         </div>
 
         {tab === "google" && (
-          <div className="card p-4 flex flex-col gap-3">
-            <p className="text-sm text-[var(--color-muted)]">
+          <div className="card p-5 flex flex-col gap-4">
+            <p className="text-base text-[var(--color-muted)]">
               Placeholder for Google OAuth. This button doesn’t do anything yet.
             </p>
             <button className="btn-primary w-full">
-              <Chrome className="h-4 w-4 mr-2" />
+              <Chrome className="h-5 w-5 mr-2" />
               Continue with Google
             </button>
           </div>
@@ -61,23 +61,23 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
             {mode === "signup" && (
               <div>
                 <label htmlFor="name">Name</label>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-[var(--color-muted)]" />
+                <div className="flex items-center gap-3">
+                  <User className="h-5 w-5 text-[var(--color-muted)]" />
                   <input id="name" placeholder="Your name" type="text" />
                 </div>
               </div>
             )}
             <div>
               <label htmlFor="email">Email</label>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[var(--color-muted)]" />
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-[var(--color-muted)]" />
                 <input id="email" placeholder="you@example.com" type="email" />
               </div>
             </div>
             <div>
               <label htmlFor="password">Password</label>
-              <div className="flex items-center gap-2">
-                <Lock className="h-4 w-4 text-[var(--color-muted)]" />
+              <div className="flex items-center gap-3">
+                <Lock className="h-5 w-5 text-[var(--color-muted)]" />
                 <input id="password" placeholder="••••••••" type="password" />
               </div>
             </div>
@@ -113,7 +113,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
         )}
 
         <div className="divider" />
-        <p className="text-[11px] text-center text-[var(--color-muted)] px-2">
+        <p className="text-[12px] text-center text-[var(--color-muted)] px-2">
           By continuing you agree to our Terms & Privacy (placeholder).
         </p>
       </div>
