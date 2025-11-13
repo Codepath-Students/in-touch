@@ -69,9 +69,7 @@ Backend: Express
 ### [Landing Page]
 
 [There is a landing page for the website, from which the login/signup can be done]
-
-
-
+[gif goes here]
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ## Installation Instructions
