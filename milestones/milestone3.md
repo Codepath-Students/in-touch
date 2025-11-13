@@ -34,7 +34,7 @@ You will need to reference the GitHub Project Management guide in the course por
 
 ### Which features and user stories would you consider “at risk”? How will you change your plan if those items remain “at risk”?
 
-[👉🏾👉🏾👉🏾 Right now, I would not say anything necessarily feels completely "at risk", but we will have to narrow down what are the important things to accomplish and narrow down what are things we wmight want to implement in addition to this (from which we can then label these more of being "at risk")..]
+[👉🏾👉🏾👉🏾 Right now, I would not say anything necessarily feels completely "at risk", but we will have to narrow down what are the important things to accomplish and narrow down what are things we might want to implement in addition to this (from which we can then label these more of being "at risk")..]
 
 ### 5. What additional support will you need in upcoming units as you continue to work on your final project?
 
