@@ -13,21 +13,21 @@ import {
 const LandingPage = ({ onAuth }) => {
   const Feature = ({ icon: Icon, title, children }) => {
   return (
-    <div className="text-center flex flex-col items-center gap-3">
-      <div className="icon-circle mb-2">
-        <Icon className="h-8 w-8" />
+    <div className="text-center flex flex-col items-center gap-3 hover:scale-[1.03] transition-transform duration-300 cursor-default">
+      <div className="h-25 w-25 bg-[var(--color-primary-600)] rounded-full mb-2">
+        <Icon className="h-10 w-10 mt-6 justify-self-center" />
       </div>
-      <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+      <h3 className="text-lg font-semibold">{title}</h3>
       <p className="mt-1 text-sm text-[var(--color-muted)] max-w-[280px]">{children}</p>
     </div>
   );
 };
   return (
-    <div className="app-shell">
+    <div>
       {/* Unified background – no framed surface wrapper */}
       <div className="mx-auto w-full max-w-7xl px-6 py-12 flex flex-col gap-16 flex-1">
         {/* Header (much larger brand) */}
-        <header className="flex items-center justify-between">
+        <header className="flex items-center gap-16 justify-between">
           <div className="flex items-center gap-4">
             <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-full bg-[var(--color-primary-600)] text-white shadow">
               <Heart className="h-8 w-8 sm:h-10 sm:w-10" />
@@ -71,7 +71,7 @@ const LandingPage = ({ onAuth }) => {
         </section>
 
         {/* Features */}
-        <section className="grid grid-cols-6 sm:grid-cols-3 lg:grid-cols-6 gap-10 marg-top">
+        <section className="grid grid-cols-6 sm:grid-cols-3 lg:grid-cols-6 gap-8">
           <Feature icon={Heart} title="Never Forget">
             Capture important moments & reflections with close friends.
           </Feature>
@@ -143,7 +143,7 @@ const LandingPage = ({ onAuth }) => {
         </section>
 
         {/* Footer */}
-        <footer className="text-center text-[12px] text-[var(--color-muted)] pt-6pb-6">
+        <footer className="text-center text-[12px] text-[var(--color-muted)] pb-6">
           © {new Date().getFullYear()} In Touch. Building meaningful connection.
         </footer>
       </div>
