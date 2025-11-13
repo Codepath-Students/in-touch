@@ -13,17 +13,17 @@ import {
 const LandingPage = ({ onAuth }) => {
   const Feature = ({ icon: Icon, title, children }) => {
   return (
-    <div className="text-center flex flex-col items-center gap-3 hover:scale-[1.03] transition-transform duration-300 cursor-default">
+    <div className="text-center flex flex-col items-center gap-3 hover:scale-[1.08] transition-transform duration-300 cursor-default bg-surface-900 rounded-lg p-6 shadow">
       <div className="h-25 w-25 bg-[var(--color-primary-600)] rounded-full mb-2">
         <Icon className="h-10 w-10 mt-6 justify-self-center" />
       </div>
       <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-[var(--color-muted)] max-w-[280px]">{children}</p>
+      <p className="mt-1 text-sm text-[var(--color-foreground)] max-w-[280px]">{children}</p>
     </div>
   );
 };
   return (
-    <div>
+    <div className="min-h-screen overflow-x-hidden">
       {/* Unified background – no framed surface wrapper */}
       <div className="mx-auto w-full max-w-7xl px-6 py-12 flex flex-col gap-16 flex-1">
         {/* Header (much larger brand) */}
@@ -52,7 +52,7 @@ const LandingPage = ({ onAuth }) => {
             Stay connected with the people who matter most
           </h1>
           <p className="mx-auto max-w-3xl text-xl text-[var(--color-muted)]">
-            Life gets busy. Relationships shouldn’t fade. In Touch brings
+            Life gets busy. Relationships shouldn&apos;t fade. In Touch brings
             structure, warmth, and gentle reminders to help you nurture
             meaningful connections.
           </p>
@@ -71,7 +71,7 @@ const LandingPage = ({ onAuth }) => {
         </section>
 
         {/* Features */}
-        <section className="grid grid-cols-6 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+        <section className="mx-auto max-w-6xl grid gap-10 md:grid-cols-3">
           <Feature icon={Heart} title="Never Forget">
             Capture important moments & reflections with close friends.
           </Feature>
@@ -95,7 +95,7 @@ const LandingPage = ({ onAuth }) => {
         {/* How It Works */}
         <section className="section pt-0">
           <div className="mx-auto max-w-6xl grid gap-10 md:grid-cols-3">
-            <div className="card p-7 flex flex-col gap-4">
+            <div className="card p-7 flex flex-col gap-4 hover:scale-[1.04] transition-transform duration-300">
               <Sparkles className="h-6 w-6 text-[var(--color-primary-400)]" />
               <h3 className="text-lg font-semibold">Add Connections</h3>
               <p className="text-base text-[var(--color-muted)]">
@@ -103,7 +103,7 @@ const LandingPage = ({ onAuth }) => {
                 suggested touch points based on interaction patterns.
               </p>
             </div>
-            <div className="card p-7 flex flex-col gap-4">
+            <div className="card p-7 flex flex-col gap-4 hover:scale-[1.04] transition-transform duration-300">
               <Calendar className="h-6 w-6 text-[var(--color-primary-400)]" />
               <h3 className="text-lg font-semibold">Set Cadence</h3>
               <p className="text-base text-[var(--color-muted)]">
@@ -111,7 +111,7 @@ const LandingPage = ({ onAuth }) => {
                 meaningful drifts.
               </p>
             </div>
-            <div className="card p-7 flex flex-col gap-4">
+            <div className="card p-7 flex flex-col gap-4 hover:scale-[1.04] transition-transform duration-300">
               <MessageCircle className="h-6 w-6 text-[var(--color-primary-400)]" />
               <h3 className="text-lg font-semibold">Engage Intentionally</h3>
               <p className="text-base text-[var(--color-muted)]">

@@ -82,9 +82,12 @@ font-family
 }
 */
 
-html, body, #root {
-  height: 100%;
-  min-height: 100dvh; /* dynamic viewport for mobile */
+html, body {
+  margin: 0;
+  min-height: 100vh;
+  background: #fcf2f2; 
+  overflow-x: hidden;
+  overscroll-behavior: none; 
 }
 
 body {
