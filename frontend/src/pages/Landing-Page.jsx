@@ -129,8 +129,7 @@ const LandingPage = ({ onAuth }) => {
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-[var(--color-muted)]">
             Build stronger relationships with a platform designed for steady,
-            mindful connection—not noisy feeds. Healthy networks start with
-            intention.
+            mindful connection. Healthy networks start with intention.
           </p>
           <div>
             <button
