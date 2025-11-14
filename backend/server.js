@@ -12,16 +12,16 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-app.use("/api/users", UsersRouter);
-app.use("/api/auth", AuthenticationRouter);
-app.use("/api/connections", ConnectionsRouter);
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "frontend", "public")));
+
+app.use("/api/users", UsersRouter);
+app.use("/api/auth", AuthenticationRouter);
+app.use("/api/connections", ConnectionsRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

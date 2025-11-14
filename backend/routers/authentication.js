@@ -1,5 +1,5 @@
 import express from 'express';
-import ConnectionsController from '../controllers/connections.js';
+import AuthenticationController from '../controllers/authentication.js';
 
 const AuthenticationRouter = express.Router();
 
