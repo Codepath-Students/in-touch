@@ -40,7 +40,7 @@ const LandingPage = ({ onAuth }) => {
             <button className="btn-ghost" onClick={() => onAuth("login")}>
               Log In
             </button>
-            <button className="btn-primary" onClick={() => onAuth("login")}>
+            <button className="btn-primary" onClick={() => onAuth("signup")}>
               Sign Up
             </button>
           </div>
@@ -59,13 +59,9 @@ const LandingPage = ({ onAuth }) => {
           <div className="flex justify-around gap-4 flex-wrap">
             <button
               className="btn-primary px-7 py-4"
-              onClick={() => onAuth("login")}
+              onClick={() => onAuth("signup")}
             >
               Get Started
-            </button>
-            <button className="btn-ghost px-7 py-4">
-              <PlayCircle className="h-6 w-6" />
-              Learn More
             </button>
           </div>
         </section>
@@ -134,7 +130,7 @@ const LandingPage = ({ onAuth }) => {
           <div>
             <button
               className="btn-primary px-7 py-4"
-              onClick={() => onAuth("login")}
+              onClick={() => onAuth("signup")}
             >
               Start Your Journey
             </button>
