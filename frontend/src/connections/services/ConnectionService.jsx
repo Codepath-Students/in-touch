@@ -1,40 +1,6 @@
-const MOCK = true; // toggle to false to hit real backend
+import MOCK_CONNECTIONS  from "./mockData";
 
-const MOCK_CONNECTIONS = [
-  {
-    connectionId: 1,
-    userId: 42, 
-    name: "Jane Doe",
-    status: "connected", 
-    connectionType: "friend", 
-    reminderFrequency: 30, 
-    daysUntilReachout: 0, 
-    notes: "Met at demo day, wants a follow-up in November.",
-    createdAt: "2025-10-01T10:00:00.000Z"
-  },
-  {
-    connectionId: 2,
-    userId: 43,
-    name: "Rahul Singh",
-    status: "connected",
-    connectionType: "close_friend",
-    reminderFrequency: 14,
-    daysUntilReachout: 3,
-    notes: "Investor intro pending.",
-    createdAt: "2025-09-20T17:30:00.000Z"
-  },
-  {
-    connectionId: 3,
-    userId: 44,
-    name: "Amara Li",
-    status: "connected",
-    connectionType: "acquaintance",
-    reminderFrequency: 60,
-    daysUntilReachout: -2,
-    notes: "Asked to hear about new project when ready.",
-    createdAt: "2025-09-10T12:15:00.000Z"
-  }
-];
+const MOCK = true; // toggle to false to hit real backend
 
 let mockStore = [...MOCK_CONNECTIONS];
 
