@@ -42,9 +42,9 @@ const resetDatabase = async () => {
         CREATE TABLE connections (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
             connection_name VARCHAR(100) NOT NULL,
-            last_contacted_at TIMESTAMP NULL,
+            last_contacted_at TIMESTAMPTZ NULL,
             reminder_frequency_days INTEGER NOT NULL,
             notes TEXT NULL,
             connection_type VARCHAR(50) NOT NULL DEFAULT 'acquaintance',
