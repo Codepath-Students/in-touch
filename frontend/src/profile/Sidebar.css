@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: var(--color-surface-700);
+    background: var(--color-surface-800);
     box-shadow: 2px 0 8px rgba(36, 41, 46, 0.05);
     padding: 24px 16px;
     box-sizing: border-box;
@@ -52,6 +52,8 @@
 .sidebar-profile-nav {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
 }
 
@@ -82,4 +84,5 @@
     color: var(--color-muted);
     font-size: 0.95rem;
     margin-top: 24px;
+    height: 100px;
 }

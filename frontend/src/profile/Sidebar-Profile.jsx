@@ -13,13 +13,13 @@ const SidebarProfile = () => {
 
     return (
         <aside className="sidebar-profile">
-            <div>
                 <div className="sidebar-profile-header">
                     <div className="icon-circle">A</div>
                     <div className="sidebar-profile-name">Ankit Gupta</div>
                     <div className="sidebar-profile-email">ankit@example.com</div>
                 </div>
-                <nav className="sidebar-profile-nav">
+            
+            <nav className="sidebar-profile-nav">
                     {links.map((link, idx) => (
                         <a
                             key={link.href}
@@ -32,7 +32,6 @@ const SidebarProfile = () => {
                         </a>
                     ))}
                 </nav>
-            </div>
             <div className="sidebar-profile-footer">
                 @in-touch
             </div>
