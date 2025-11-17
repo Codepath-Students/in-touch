@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import crypto, { verify } from 'crypto';
 
 dotenv.config();
 
 // class that will handle things like password hashing, encoding/decoding tokens, token verification, getting the user from a token, etc.
-const Utils = {
+const AuthUtils = {
 // hash password function
 // input : password (string)
 // output: hashed password (string)
@@ -27,7 +28,7 @@ const Utils = {
 // input : user object
 // output : access token, refresh token
     issueTokens: (user) => {
-      const accessToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+      const accessToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
       const refreshToken = jwt.sign({ id: user.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
       return { accessToken, refreshToken };
     },
@@ -63,6 +64,25 @@ const Utils = {
       res.cookie("refreshToken", token, cookieOptions);
     },
 
+// create email verification token
+    createEmailVerificationToken: () => {
+      const plain_token =  crypto.randomBytes(32).toString('hex');
+      const hashed_token = bcrypt.hash(plain_token, 10);
+      return { plain_token, hashed_token };
+    },
+
+    verifyEmailVerificationToken: async (plain_token, hashed_token) => {
+      if (plain_token.expiresIn < Date.now()) {
+        return false;
+      }
+     
+      const match = await bcrypt.compare(plain_token, hashed_token);
+      if (match) {
+        return true;
+      }
+      return false;
+    },
+
 };
 
-export default Utils;
+export default AuthUtils;
