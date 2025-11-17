@@ -3,6 +3,7 @@ import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import LandingPage from "./pages/Landing-Page.jsx";
 import AuthModal from "./components/AuthModal.jsx";
+import ProfilePage from "./profile/Profile-Page.jsx";
 import Connections from "./connections/ConnectionPage.jsx";
 import ConnectionsMap from "./connections_map/ConnectionsMapPage.jsx";
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={<LandingPage onAuth={openAuth} />} />
         <Route path="/connections" element={<Connections />} />
         <Route path="/connections/map" element={<ConnectionsMap />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <AuthModal
         open={authOpen}
