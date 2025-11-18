@@ -63,10 +63,6 @@ const LandingPage = ({ onAuth }) => {
             >
               Get Started
             </button>
-            <button className="btn-ghost px-7 py-4">
-              <PlayCircle className="h-6 w-6" />
-              Learn More
-            </button>
           </div>
         </section>
 

@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import LandingPage from "./pages/Landing-Page.jsx";
 import AuthModal from "./components/AuthModal.jsx";
 import CompleteProfile from "./pages/Complete-Profile.jsx";
+import ProfilePage from "./profile/Profile-Page.jsx";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -46,6 +47,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage onAuth={openAuth} />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <AuthModal
         open={authOpen}

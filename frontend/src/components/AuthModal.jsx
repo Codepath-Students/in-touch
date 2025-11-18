@@ -69,29 +69,33 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
         <p className="subtitle">
           {mode === "login"
             ? "Log in to stay in touch with your people."
-            : "Sign up to start nurturing connections."}
+            : "Sign up with Google to start nurturing connections."}
         </p>
 
-        <div className="tab-row">
-          <button
-            className={`btn-switch ${tab === "google" ? "active" : ""}`}
-            onClick={() => setTab("google")}
-            type="button"
-          >
-            <Chrome className="h-5 w-5" /> Google
-          </button>
-          <button
-            className={`btn-switch ${tab === "credentials" ? "active" : ""}`}
-            onClick={() => setTab("credentials")}
-            type="button"
-          >
-            <Mail className="h-5 w-5" />{" "}
-            {mode === "login" ? "Email Login" : "Email Signup"}
-          </button>
-        </div>
+        {/* Only show tab buttons in login mode */}
+        {mode === "login" && (
+          <div className="tab-row">
+            <button
+              className={`btn-switch ${tab === "google" ? "active" : ""}`}
+              onClick={() => setTab("google")}
+              type="button"
+            >
+              <Chrome className="h-5 w-5" /> Google
+            </button>
+            <button
+              className={`btn-switch ${tab === "credentials" ? "active" : ""}`}
+              onClick={() => setTab("credentials")}
+              type="button"
+            >
+              <Mail className="h-5 w-5" />{" "}
+              {mode === "login" ? "Email Login" : "Email Signup"}
+            </button>
+          </div>
+        )}
 
-        {tab === "google" && (
-          <div className="card p-5 flex flex-col gap-4">
+        {/* Google auth card (used for both login and signup) */}
+        {(tab === "google" || mode === "signup") && (
+          <div className="card p-5 flex flex-col gap-4 mt-4">
             <p className="text-base text-[var(--color-muted)]">
               Placeholder for Google OAuth. This button doesn’t do anything yet.
             </p>
@@ -107,7 +111,9 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
               }}
             >
               <Chrome className="h-5 w-5 mr-2" />
-              Continue with Google
+              {mode === "login"
+                ? "Continue with Google"
+                : "Sign up with Google"}
             </button>
           </div>
         )}
@@ -397,26 +403,27 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
                 ? "Log In"
                 : "Sign Up"}
             </button>
-
-            <div className="switch-auth">
-              {mode === "login" ? (
-                <>
-                  New here?{" "}
-                  <button type="button" onClick={() => onSwitchMode("signup")}>
-                    Create account
-                  </button>
-                </>
-              ) : (
-                <>
-                  Already have an account?{" "}
-                  <button type="button" onClick={() => onSwitchMode("login")}>
-                    Log in
-                  </button>
-                </>
-              )}
-            </div>
           </form>
         )}
+
+        {/* Switch between login/signup */}
+        <div className="switch-auth mt-3">
+          {mode === "login" ? (
+            <>
+              New here?{" "}
+              <button type="button" onClick={() => onSwitchMode("signup")}>
+                Create account
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button type="button" onClick={() => onSwitchMode("login")}>
+                Log in
+              </button>
+            </>
+          )}
+        </div>
 
         <div className="divider" />
         <p className="text-[12px] text-center text-[var(--color-muted)] px-2">
