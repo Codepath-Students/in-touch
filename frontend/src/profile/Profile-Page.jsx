@@ -22,6 +22,15 @@ export default function ProfilePage() {
   async function loadProfile() {
     setLoading(true);
     setError("");
+    // Fast-fail if no access token present to avoid hanging on refresh attempts
+    try {
+      const hasToken = Boolean(window?.localStorage?.getItem("access_token"));
+      if (!hasToken) {
+        setError("You must be logged in to view this page.");
+        setLoading(false);
+        return;
+      }
+    } catch {}
     try {
       const user = await getCurrentUser();
       setProfile(user);

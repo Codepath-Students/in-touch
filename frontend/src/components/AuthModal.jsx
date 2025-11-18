@@ -368,7 +368,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
               </div>
             ) : (
               <div className="helper-text">
-                Use any placeholder credentials for now.
+                Fill in your email and password to log in.
               </div>
             )}
 
