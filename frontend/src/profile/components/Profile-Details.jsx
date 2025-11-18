@@ -1,6 +1,7 @@
 // src/components/profile/ProfileDetails.jsx
 import React, { useState } from "react";
 import "./ProfileDetails.css";
+import { PROFILE_LIMITS, applyLimit } from "../../utils/profileLimits";
 
 export default function ProfileDetails({
   profile,
@@ -72,24 +73,58 @@ export default function ProfileDetails({
             <DetailField
               label="Username"
               value={draft?.username || ""}
-              onChange={(e) => onEditField?.("username", e.target.value)}
+              maxLength={PROFILE_LIMITS.username}
+              help={`${(draft?.username || "").length}/${
+                PROFILE_LIMITS.username
+              }`}
+              onChange={(e) =>
+                onEditField?.(
+                  "username",
+                  applyLimit(e.target.value, PROFILE_LIMITS.username)
+                )
+              }
             />
             <DetailField
               label="Personality Type"
               value={draft?.personality_type || ""}
+              maxLength={PROFILE_LIMITS.personality_type}
+              help={`${(draft?.personality_type || "").length}/${
+                PROFILE_LIMITS.personality_type
+              }`}
               onChange={(e) =>
-                onEditField?.("personality_type", e.target.value)
+                onEditField?.(
+                  "personality_type",
+                  applyLimit(e.target.value, PROFILE_LIMITS.personality_type)
+                )
               }
             />
             <DetailField
               label="Nearest City"
               value={draft?.nearest_city || ""}
-              onChange={(e) => onEditField?.("nearest_city", e.target.value)}
+              maxLength={PROFILE_LIMITS.nearest_city}
+              help={`${(draft?.nearest_city || "").length}/${
+                PROFILE_LIMITS.nearest_city
+              }`}
+              onChange={(e) =>
+                onEditField?.(
+                  "nearest_city",
+                  applyLimit(e.target.value, PROFILE_LIMITS.nearest_city)
+                )
+              }
             />
             <DetailField
               label="Hobbies"
               value={draft?.hobbies || ""}
-              onChange={(e) => onEditField?.("hobbies", e.target.value)}
+              maxLength={PROFILE_LIMITS.hobbies}
+              help={`${(draft?.hobbies || "").length}/${
+                PROFILE_LIMITS.hobbies
+              }`}
+              onChange={(e) =>
+                onEditField?.(
+                  "hobbies",
+                  applyLimit(e.target.value, PROFILE_LIMITS.hobbies)
+                )
+              }
             />
           </div>
 
@@ -131,15 +166,24 @@ function DetailItem({ label, value }) {
   );
 }
 
-function DetailField({ label, value, onChange }) {
+function DetailField({ label, value, onChange, maxLength, help }) {
   return (
     <div className="profile-detail-item">
       <span className="profile-detail-label">{label}</span>
       <input
         className="profile-detail-input"
         value={value}
+        maxLength={maxLength}
         onChange={onChange}
       />
+      {help ? (
+        <span
+          className="profile-detail-help"
+          style={{ fontSize: "0.75rem", color: "var(--color-muted)" }}
+        >
+          {help}
+        </span>
+      ) : null}
     </div>
   );
 }

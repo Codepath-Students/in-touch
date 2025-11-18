@@ -60,3 +60,16 @@ export async function login(payload) {
     throw Object.assign(new Error(message), { code: "UNKNOWN" });
   }
 }
+
+/**
+ * Log out the current user (server + client)
+ */
+export async function logout() {
+  try {
+    await ensureCsrf();
+    await api.post("/auth/logout");
+  } finally {
+    // Clear token locally regardless of server response
+    setAccessToken(null);
+  }
+}

@@ -1,6 +1,7 @@
 // src/components/profile/ProfileBio.jsx
 import React, { useState } from "react";
 import "./ProfileBio.css";
+import { PROFILE_LIMITS, applyLimit } from "../../utils/profileLimits";
 
 export default function ProfileBio({
   profile,
@@ -44,9 +45,18 @@ export default function ProfileBio({
           <textarea
             className="profile-bio-textarea"
             rows={4}
+            maxLength={PROFILE_LIMITS.bio}
             value={bioValue}
-            onChange={(e) => onEditField?.("bio", e.target.value)}
+            onChange={(e) =>
+              onEditField?.(
+                "bio",
+                applyLimit(e.target.value, PROFILE_LIMITS.bio)
+              )
+            }
           />
+          <div className="profile-bio-loading" style={{ textAlign: "right" }}>
+            {(bioValue || "").length}/{PROFILE_LIMITS.bio}
+          </div>
           <div className="profile-bio-actions">
             <button
               type="button"

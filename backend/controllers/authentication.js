@@ -65,7 +65,7 @@ const AuthenticationController = {
       AuthUtils.setRefreshTokenCookie(res, tokens.refreshToken);
 
       // Determine whether we need username completion
-      const redirectBase = process.env.FRONTEND_URL || "http://localhost:5173";
+      const redirectBase = process.env.FRONTEND_URL;
       const needsUsername = !user.username;
 
       // Redirect to frontend with Access Token and needsUsername flag in URL

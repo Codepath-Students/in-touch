@@ -1,14 +1,17 @@
 // src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { getProfile, updateProfile } from "./services/Profile-Service";
+import { getCurrentUser, updateCurrentUser } from "../services/users";
 
 import ProfileBio from "./components/Profile-Bio";
 import ProfileDetails from "./components/Profile-Details";
 import ProfileHeader from "./components/Profile-Header";
+import ErrorBox from "../components/ErrorBox";
+import { useNavigate } from "react-router-dom";
 
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -16,42 +19,58 @@ export default function ProfilePage() {
   // Centralized, frontend-only draft for editable fields
   const [profileDraft, setProfileDraft] = useState(null);
 
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const data = await getProfile();
-        setProfile(data);
-        setProfileDraft({
-          display_name: data.display_name || "",
-          username: data.username || "",
-          bio: data.bio || "",
-          personality_type: data.personality_type || "",
-          nearest_city: data.nearest_city || "",
-          hobbies: data.hobbies || "",
-          profile_picture_url: data.profile_picture_url || "",
-        });
-      } catch (err) {
-        setError(err.message || "Could not load profile");
-      } finally {
-        setLoading(false);
+  async function loadProfile() {
+    setLoading(true);
+    setError("");
+    try {
+      const user = await getCurrentUser();
+      setProfile(user);
+      setProfileDraft({
+        display_name: user?.display_name || "",
+        username: user?.username || "",
+        bio: user?.bio || "",
+        personality_type: user?.personality_type || "",
+        nearest_city: user?.nearest_city || "",
+        hobbies: user?.hobbies || "",
+        profile_picture_url: user?.profile_picture_url || "",
+      });
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError("You must be logged in to view this page.");
+      } else {
+        setError(
+          err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Could not load profile"
+        );
       }
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
     loadProfile();
   }, []);
 
   // Single update method for any profile changes
   const handleUpdateProfile = async (patch) => {
-    if (!profile) return;
+    if (!patch || Object.keys(patch).length === 0) return;
     try {
       setSaving(true);
-      const updated = await updateProfile(profile.id, patch);
+      const updated = await updateCurrentUser(patch);
       setProfile(updated);
-      // keep draft in sync post-save
-      setProfileDraft((prev) => ({
-        ...(prev || {}),
-        ...patch,
-      }));
+      setProfileDraft({
+        display_name: updated?.display_name || "",
+        username: updated?.username || "",
+        bio: updated?.bio || "",
+        personality_type: updated?.personality_type || "",
+        nearest_city: updated?.nearest_city || "",
+        hobbies: updated?.hobbies || "",
+        profile_picture_url: updated?.profile_picture_url || "",
+      });
     } catch (err) {
       setError(err.message || "Could not update profile");
     } finally {
@@ -91,28 +110,38 @@ export default function ProfilePage() {
         </p>
       </header>
 
-      {error && <div className="profile-page-error">{error}</div>}
-
-      <div className="profile-page-grid">
-        <ProfileHeader profile={profile} loading={loading} />
-        <ProfileDetails
-          profile={profile}
-          draft={profileDraft}
-          loading={loading}
-          saving={saving}
-          onEditField={editProfileField}
-          onSave={saveDetailsFromDraft}
+      {error && (
+        <ErrorBox
+          title="Unable to load profile"
+          message={error}
+          onHome={() => navigate("/")}
         />
-      </div>
+      )}
 
-      <ProfileBio
-        profile={profile}
-        bioValue={profileDraft?.bio || ""}
-        onEditField={editProfileField}
-        loading={loading}
-        saving={saving}
-        onSave={saveBioFromDraft}
-      />
+      {!error && (
+        <>
+          <div className="profile-page-grid">
+            <ProfileHeader profile={profile} loading={loading} />
+            <ProfileDetails
+              profile={profile}
+              draft={profileDraft}
+              loading={loading}
+              saving={saving}
+              onEditField={editProfileField}
+              onSave={saveDetailsFromDraft}
+            />
+          </div>
+
+          <ProfileBio
+            profile={profile}
+            bioValue={profileDraft?.bio || ""}
+            onEditField={editProfileField}
+            loading={loading}
+            saving={saving}
+            onSave={saveBioFromDraft}
+          />
+        </>
+      )}
     </div>
   );
 }
