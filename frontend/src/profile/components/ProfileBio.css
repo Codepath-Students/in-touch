@@ -1,7 +1,7 @@
 /* src/styles/ProfileBio.css */
 
 .profile-bio-card {
-  padding: 1.6rem 1.8rem 1.8rem;
+  padding: 2.1rem 2.2rem 2.2rem;
   border-radius: var(--radius-2xl);
   background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--color-border);
@@ -18,19 +18,19 @@
 }
 
 .profile-bio-heading {
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--color-muted);
 }
 
 .profile-bio-edit-button {
-  padding: 0.45rem 0.85rem;
+  padding: 0.6rem 1.1rem;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.6);
   background: rgba(15, 23, 42, 0.9);
   color: var(--color-foreground);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -40,9 +40,9 @@
 }
 
 .profile-bio-text {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  padding: 0.8rem 0.95rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  padding: 1.1rem 1.2rem;
   border-radius: 14px;
   background: rgba(15, 23, 42, 0.9);
   border: 1px dashed rgba(148, 163, 184, 0.55);
@@ -50,13 +50,13 @@
 
 .profile-bio-textarea {
   width: 100%;
-  min-height: 110px;
+  min-height: 140px;
   border-radius: 14px;
   border: 1px solid var(--color-border);
   background: rgba(15, 23, 42, 0.95);
   color: var(--color-foreground);
-  font-size: 0.9rem;
-  padding: 0.8rem 0.95rem;
+  font-size: 1.05rem;
+  padding: 1.1rem 1.2rem;
   resize: vertical;
   outline: none;
 }
@@ -73,12 +73,12 @@
 }
 
 .profile-bio-save-button {
-  padding: 0.55rem 1.2rem;
+  padding: 0.75rem 1.4rem;
   border-radius: 999px;
   border: none;
   background: var(--color-primary-600);
   color: #ffffff;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
 }

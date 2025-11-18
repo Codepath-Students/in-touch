@@ -1,59 +1,85 @@
 // src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { getProfile, updateProfileBio, updateProfileDetails } from "./services/Profile-Service";
+import { getProfile, updateProfile } from "./services/Profile-Service";
 
 import ProfileBio from "./components/Profile-Bio";
 import ProfileDetails from "./components/Profile-Details";
-import ProfileHeader from "./components/Profile-Header";   
+import ProfileHeader from "./components/Profile-Header";
 
-import "./ProfilePage.css"
+import "./ProfilePage.css";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [savingBio, setSavingBio] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [savingDetails, setSavingDetails] = useState(false);
+  // Centralized, frontend-only draft for editable fields
+  const [profileDraft, setProfileDraft] = useState(null);
 
   useEffect(() => {
     async function loadProfile() {
-        try {
+      try {
         const data = await getProfile();
         setProfile(data);
-        } catch (err) {
+        setProfileDraft({
+          display_name: data.display_name || "",
+          username: data.username || "",
+          bio: data.bio || "",
+          personality_type: data.personality_type || "",
+          nearest_city: data.nearest_city || "",
+          hobbies: data.hobbies || "",
+          profile_picture_url: data.profile_picture_url || "",
+        });
+      } catch (err) {
         setError(err.message || "Could not load profile");
-        } finally {
+      } finally {
         setLoading(false);
-        }
+      }
     }
 
     loadProfile();
   }, []);
 
-  const handleSaveBio = async (newBio) => {
+  // Single update method for any profile changes
+  const handleUpdateProfile = async (patch) => {
     if (!profile) return;
     try {
-      setSavingBio(true);
-      const updated = await updateProfileBio(profile.id, newBio);
+      setSaving(true);
+      const updated = await updateProfile(profile.id, patch);
       setProfile(updated);
+      // keep draft in sync post-save
+      setProfileDraft((prev) => ({
+        ...(prev || {}),
+        ...patch,
+      }));
     } catch (err) {
-      setError(err.message || "Could not save bio");
+      setError(err.message || "Could not update profile");
     } finally {
-      setSavingBio(false);
+      setSaving(false);
     }
   };
 
-  const handleSaveDetails = async (details) => {
-    if (!profile) return;
-    setSavingDetails(true);
-    try {
-      const updated = await updateProfileDetails(profile.id, details);
-      setProfile(updated);
-    } catch (err) {
-      setError(err.message || "Could not save profile details");
-    } finally {
-      setSavingDetails(false);
-    }
+  // Field editor to mutate centralized draft state
+  const editProfileField = (field, value) => {
+    setProfileDraft((prev) => ({ ...(prev || {}), [field]: value }));
+  };
+
+  // Save helpers for child components
+  const saveDetailsFromDraft = () => {
+    if (!profileDraft) return;
+    const patch = {
+      display_name: profileDraft.display_name,
+      username: profileDraft.username,
+      personality_type: profileDraft.personality_type,
+      nearest_city: profileDraft.nearest_city,
+      hobbies: profileDraft.hobbies,
+    };
+    return handleUpdateProfile(patch);
+  };
+
+  const saveBioFromDraft = () => {
+    if (!profileDraft) return;
+    return handleUpdateProfile({ bio: profileDraft.bio });
   };
 
   return (
@@ -69,15 +95,23 @@ export default function ProfilePage() {
 
       <div className="profile-page-grid">
         <ProfileHeader profile={profile} loading={loading} />
-        <ProfileDetails profile={profile} loading={loading} saving={savingDetails}
-          onSaveDetails={handleSaveDetails} />
+        <ProfileDetails
+          profile={profile}
+          draft={profileDraft}
+          loading={loading}
+          saving={saving}
+          onEditField={editProfileField}
+          onSave={saveDetailsFromDraft}
+        />
       </div>
 
       <ProfileBio
         profile={profile}
+        bioValue={profileDraft?.bio || ""}
+        onEditField={editProfileField}
         loading={loading}
-        saving={savingBio}
-        onSaveBio={handleSaveBio}
+        saving={saving}
+        onSave={saveBioFromDraft}
       />
     </div>
   );

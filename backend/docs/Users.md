@@ -33,12 +33,12 @@ Responses
 2. PUT /api/users
    Purpose
 
-- Update the authenticated user’s profile.
+- Partially update the authenticated user’s profile (only provided fields change; omitted fields remain unchanged).
 
 Inputs
 
 - Headers: Authorization: Bearer <accessToken>, x-csrf-token
-- Body (JSON, all optional except as required by your UX):
+- Body (JSON, any subset of the following fields; omitted fields are unchanged):
   {
   username: string,
   display_name: string,
@@ -59,7 +59,14 @@ Responses
 
 Notes
 
-- Current implementation overwrites provided fields; send only values you intend to change.
+- Server performs a partial update. If you omit a field, it remains unchanged in the database.
+- Validation enforced server-side (aligned with schema):
+  - display_name ≤ 100 chars
+  - username ≤ 50 chars (unique)
+  - bio ≤ 500 chars
+  - personality_type ≤ 50 chars
+  - nearest_city ≤ 100 chars
+  - hobbies ≤ 255 chars
 - Consider adding client-side validation for username length/pattern.
 
 3. DELETE /api/users

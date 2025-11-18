@@ -7,6 +7,17 @@ const api = axios.create({
   withCredentials: true, // allow cookies for refresh routes when needed
 });
 
+// Access token management (in-memory)
+let ACCESS_TOKEN = null;
+export function setAccessToken(token) {
+  ACCESS_TOKEN = token || null;
+  if (ACCESS_TOKEN) {
+    api.defaults.headers.common["Authorization"] = `Bearer ${ACCESS_TOKEN}`;
+  } else {
+    delete api.defaults.headers.common["Authorization"];
+  }
+}
+
 // CSRF bootstrap: fetch CSRF token once and set it as a default header
 let csrfInitialized = false;
 export async function ensureCsrf() {

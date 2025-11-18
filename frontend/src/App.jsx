@@ -5,7 +5,7 @@ import LandingPage from "./pages/Landing-Page.jsx";
 import AuthModal from "./components/AuthModal.jsx";
 import CompleteProfile from "./pages/Complete-Profile.jsx";
 import ProfilePage from "./profile/Profile-Page.jsx";
-import { ensureCsrf } from "./services/api.js";
+import { ensureCsrf, setAccessToken } from "./services/api.js";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -33,6 +33,7 @@ function App() {
     const needsUsername = googleParams.get("needsUsername") === "true";
     if (token) {
       // Store token in memory or app state later. For now, just show success.
+      setAccessToken(token);
       if (needsUsername) {
         navigate("/complete-profile");
       } else {

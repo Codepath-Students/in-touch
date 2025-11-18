@@ -1,4 +1,4 @@
-import api, { ensureCsrf } from "./api";
+import api, { ensureCsrf, setAccessToken } from "./api";
 
 /**
  * Sign up with email/password
@@ -46,6 +46,7 @@ export async function login(payload) {
     await ensureCsrf();
     const { email, password } = payload;
     const res = await api.post("/auth/login", { email, password });
+    if (res.data?.accessToken) setAccessToken(res.data.accessToken);
     return res.data; // { accessToken }
   } catch (err) {
     const status = err?.response?.status;

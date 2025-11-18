@@ -35,11 +35,11 @@ const ConnectionsController = {
     const userId = req.userId;
     const {
       connection_name,
-      reach_out_priority = 0,
+      reach_out_priority,
       reminder_frequency_days,
-      notes = "",
-      connection_type = "acquaintance",
-      know_from = "",
+      notes,
+      connection_type,
+      know_from,
     } = req.body || {};
 
     // Basic validation (align with DB constraints)
@@ -54,13 +54,11 @@ const ConnectionsController = {
     }
     const freq = parseInt(reminder_frequency_days, 10);
     if (!Number.isInteger(freq) || freq <= 0) {
-      return res
-        .status(400)
-        .json({
-          error: "Invalid reminder_frequency_days (must be integer > 0)",
-        });
+      return res.status(400).json({
+        error: "Invalid reminder_frequency_days (must be integer > 0)",
+      });
     }
-    const priority = parseInt(reach_out_priority, 10);
+    const priority = parseInt(reach_out_priority ?? 0, 10);
     if (!Number.isInteger(priority) || priority < 0 || priority > 10) {
       return res
         .status(400)
@@ -82,17 +80,17 @@ const ConnectionsController = {
         INSERT INTO connections (
           user_id, connection_name, reminder_frequency_days, notes, connection_type, know_from, reach_out_priority
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        VALUES ($1, $2, $3, COALESCE($4, ''), COALESCE($5, 'acquaintance'), COALESCE($6, ''), COALESCE($7, 0))
         RETURNING id, connection_name, reach_out_priority, reminder_frequency_days, created_at, last_contacted_at
       `;
       const { rows } = await pool.query(query, [
         userId,
         connection_name,
         freq,
-        notes,
-        connection_type,
-        know_from,
-        priority,
+        notes ?? null,
+        connection_type ?? null,
+        know_from ?? null,
+        isNaN(priority) ? 0 : priority,
       ]);
       return res.status(201).json({ connection: rows[0] });
     } catch (err) {
@@ -126,11 +124,9 @@ const ConnectionsController = {
     if (reminder_frequency_days !== undefined) {
       const freq = parseInt(reminder_frequency_days, 10);
       if (!Number.isInteger(freq) || freq <= 0) {
-        return res
-          .status(400)
-          .json({
-            error: "Invalid reminder_frequency_days (must be integer > 0)",
-          });
+        return res.status(400).json({
+          error: "Invalid reminder_frequency_days (must be integer > 0)",
+        });
       }
     }
     if (reach_out_priority !== undefined) {

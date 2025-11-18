@@ -1,20 +1,20 @@
 // src/components/profile/ProfileBio.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./ProfileBio.css";
 
-export default function ProfileBio({ profile, loading, saving, onSaveBio }) {
+export default function ProfileBio({
+  profile,
+  bioValue,
+  onEditField,
+  loading,
+  saving,
+  onSave,
+}) {
   const [editMode, setEditMode] = useState(false);
-  const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    if (profile && !editMode) {
-      setDraft(profile.bio || "");
-    }
-  }, [profile, editMode]);
 
   const handleSaveClick = () => {
     if (!profile) return;
-    onSaveBio(draft);
+    onSave?.();
     setEditMode(false);
   };
 
@@ -44,8 +44,8 @@ export default function ProfileBio({ profile, loading, saving, onSaveBio }) {
           <textarea
             className="profile-bio-textarea"
             rows={4}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            value={bioValue}
+            onChange={(e) => onEditField?.("bio", e.target.value)}
           />
           <div className="profile-bio-actions">
             <button
