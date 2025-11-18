@@ -69,7 +69,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
         <p className="subtitle">
           {mode === "login"
             ? "Log in to stay in touch with your people."
-            : "Sign up with Google to start nurturing connections."}
+            : ""}
         </p>
 
         {/* Only show tab buttons in login mode */}
@@ -97,7 +97,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
         {(tab === "google" || mode === "signup") && (
           <div className="card p-5 flex flex-col gap-4 mt-4">
             <p className="text-base text-[var(--color-muted)]">
-              Placeholder for Google OAuth. This button doesn’t do anything yet.
+              Sign up quickly with your Google account.
             </p>
             <button
               className="btn-primary w-full"
