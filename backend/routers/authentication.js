@@ -22,6 +22,7 @@ AuthenticationRouter.post(
 // Route for verifying refresh token
 AuthenticationRouter.post(
   "/verify-refresh-token",
+  verifyTokenRateLimiter,
   AuthenticationController.verifyRefreshToken
 );
 
