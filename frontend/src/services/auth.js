@@ -45,19 +45,38 @@ export async function login(payload) {
   try {
     await ensureCsrf();
     const { email, password } = payload;
-    const res = await api.post("/auth/login", { email, password });
+    // Pass flag to skip automatic refresh for invalid credentials
+    const res = await api.post(
+      "/auth/login",
+      { email, password },
+      {
+        skipAuthRefresh: true,
+      }
+    );
     if (res.data?.accessToken) setAccessToken(res.data.accessToken);
     return res.data; // { accessToken }
   } catch (err) {
     const status = err?.response?.status;
     const message = err?.response?.data?.message || "Login failed";
-    if (status === 401) {
-      throw Object.assign(new Error("Invalid email or password"), {
-        code: "INVALID_CREDENTIALS",
-        message: "Invalid email or password",
+    // Normalize invalid credential responses from various possible status codes
+    const invalidCredMsgPattern =
+      /invalid (email|username)?\s*or\s*password|credentials invalid|wrong password|user not found/i;
+    if (status === 401 || status === 400 || status === 403) {
+      if (status === 401 || invalidCredMsgPattern.test(message)) {
+        throw Object.assign(new Error("Invalid email or password"), {
+          code: "INVALID_CREDENTIALS",
+          message: "Invalid email or password",
+        });
+      }
+    }
+    // Network / unreachable server (no response object)
+    if (!err?.response) {
+      throw Object.assign(new Error("Network error. Please try again."), {
+        code: "NETWORK",
+        message: "Network error. Please try again.",
       });
     }
-    throw Object.assign(new Error(message), { code: "UNKNOWN" });
+    throw Object.assign(new Error(message), { code: "UNKNOWN", message });
   }
 }
 

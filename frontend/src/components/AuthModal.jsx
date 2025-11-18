@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Chrome,
   Mail,
@@ -24,6 +25,7 @@ const passwordStrength = (pw) => {
 };
 
 const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("credentials"); // 'google' | 'credentials'
   const [form, setForm] = useState({
     username: "",
@@ -67,9 +69,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
 
         <h2>{mode === "login" ? "Welcome back" : "Create your account"}</h2>
         <p className="subtitle">
-          {mode === "login"
-            ? "Log in to stay in touch with your people."
-            : ""}
+          {mode === "login" ? "Log in to stay in touch with your people." : ""}
         </p>
 
         {/* Only show tab buttons in login mode */}
@@ -175,11 +175,22 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
                     password: form.password,
                   });
                   setInfo("Logged in successfully.");
+                  // Close modal and redirect to profile page
+                  onClose && onClose();
+                  navigate("/profile");
                 } catch (err) {
                   if (err?.code === "INVALID_CREDENTIALS") {
                     setError("Invalid email or password.");
-                  } else {
+                  } else if (err?.code === "NETWORK") {
+                    setError(
+                      "Unable to reach server. Check your connection and try again."
+                    );
+                  } else if (!err?.response) {
+                    setError("Request failed. Please verify your connection.");
+                  } else if (err?.code === "UNKNOWN") {
                     setError(err?.message || "Login failed. Please try again.");
+                  } else {
+                    setError("Login failed. Please try again.");
                   }
                 } finally {
                   setSubmitting(false);

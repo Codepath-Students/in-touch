@@ -67,6 +67,7 @@ api.interceptors.response.use(
   async (error) => {
     const response = error?.response;
     const originalRequest = error?.config || {};
+    const url = originalRequest?.url || "";
 
     // If CSRF missing/invalid, fetch it once and retry the request
     if (
@@ -84,7 +85,13 @@ api.interceptors.response.use(
     }
 
     // Attempt token refresh on 401 once per request
-    if (response?.status === 401 && !originalRequest._retry) {
+    if (
+      response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.skipAuthRefresh &&
+      !/\/auth\/(login|signup)/.test(url) && // don't refresh for explicit auth endpoints
+      !/\/auth\/token\/refresh/.test(url) // avoid recursive refresh
+    ) {
       originalRequest._retry = true;
       try {
         await ensureCsrf();
