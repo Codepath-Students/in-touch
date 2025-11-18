@@ -34,3 +34,26 @@ export async function signup(payload) {
     throw Object.assign(new Error(message), { code: "UNKNOWN" });
   }
 }
+
+/**
+ * Log in with email/password
+ * @param {{email:string, password:string}} payload
+ * @returns {Promise<{accessToken:string}>}
+ */
+export async function login(payload) {
+  try {
+    const { email, password } = payload;
+    const res = await api.post("/auth/login", { email, password });
+    return res.data; // { accessToken }
+  } catch (err) {
+    const status = err?.response?.status;
+    const message = err?.response?.data?.message || "Login failed";
+    if (status === 401) {
+      throw Object.assign(new Error("Invalid email or password"), {
+        code: "INVALID_CREDENTIALS",
+        message: "Invalid email or password",
+      });
+    }
+    throw Object.assign(new Error(message), { code: "UNKNOWN" });
+  }
+}

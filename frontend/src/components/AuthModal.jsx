@@ -10,7 +10,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { signup as signupApi } from "../services/auth";
+import { signup as signupApi, login as loginApi } from "../services/auth";
 
 // Password strength checker
 const passwordStrength = (pw) => {
@@ -57,7 +57,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
       role="dialog"
       onClick={onClose}
     >
-      <div className="auth-modal" onClick={stop}>
+      <div className="auth-modal max-h-[85vh] overflow-y-auto" onClick={stop}>
         <button className="close-btn" onClick={onClose} aria-label="Close">
           ✕
         </button>
@@ -104,51 +104,67 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
             className="auth-form"
             onSubmit={async (e) => {
               e.preventDefault();
-              if (mode !== "signup") return; // login not implemented yet
               setError("");
               setInfo("");
-              // basic client validation
-              if (!strength.isStrong) {
-                setError(
-                  "Password is not strong enough. Please meet all requirements."
-                );
-                return;
-              }
-              if (!confirmMatches) {
-                setError("Passwords do not match.");
-                return;
-              }
-              setSubmitting(true);
-              try {
-                const res = await signupApi({
-                  username: form.username.trim(),
-                  name: form.name.trim(),
-                  email: form.email.trim(),
-                  password: form.password,
-                });
-                // On success, backend sends email. Inform user.
-                setInfo(
-                  res?.message ||
-                    "If this email belongs to you, a verification link has been sent."
-                );
-                // Soft reset sensitive fields
-                setForm((f) => ({
-                  ...f,
-                  password: "",
-                  confirmPassword: "",
-                }));
-                setShowPassword(false);
-                setShowConfirmPassword(false);
-              } catch (err) {
-                if (err?.code === "EMAIL_TAKEN") {
-                  setError("That email is already registered.");
-                } else if (err?.code === "USERNAME_TAKEN") {
-                  setError("That username is already taken.");
-                } else {
-                  setError(err?.message || "Signup failed. Please try again.");
+
+              if (mode === "signup") {
+                // basic client validation
+                if (!strength.isStrong) {
+                  setError(
+                    "Password is not strong enough. Please meet all requirements."
+                  );
+                  return;
                 }
-              } finally {
-                setSubmitting(false);
+                if (!confirmMatches) {
+                  setError("Passwords do not match.");
+                  return;
+                }
+                setSubmitting(true);
+                try {
+                  const res = await signupApi({
+                    username: form.username.trim(),
+                    name: form.name.trim(),
+                    email: form.email.trim(),
+                    password: form.password,
+                  });
+                  setInfo(
+                    res?.message ||
+                      "If this email belongs to you, a verification link has been sent."
+                  );
+                  setForm((f) => ({ ...f, password: "", confirmPassword: "" }));
+                  setShowPassword(false);
+                  setShowConfirmPassword(false);
+                } catch (err) {
+                  if (err?.code === "EMAIL_TAKEN") {
+                    setError("That email is already registered.");
+                  } else if (err?.code === "USERNAME_TAKEN") {
+                    setError("That username is already taken.");
+                  } else {
+                    setError(
+                      err?.message || "Signup failed. Please try again."
+                    );
+                  }
+                } finally {
+                  setSubmitting(false);
+                }
+              } else {
+                // login flow
+                setSubmitting(true);
+                try {
+                  await loginApi({
+                    email: form.email.trim(),
+                    password: form.password,
+                  });
+                  setInfo("Logged in successfully.");
+                } catch (err) {
+                  if (err?.code === "INVALID_CREDENTIALS") {
+                    setError("Invalid email or password.");
+                  } else {
+                    setError(err?.message || "Login failed. Please try again.");
+                  }
+                } finally {
+                  setSubmitting(false);
+                }
               }
             }}
           >
@@ -350,15 +366,16 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
 
             <button
               className="btn-primary w-full mt-1 disabled:opacity-60"
-              type={mode === "login" ? "button" : "submit"}
+              type="submit"
               disabled={
                 submitting ||
-                (mode === "signup" &&
-                  (!form.username.trim() ||
+                (mode === "signup"
+                  ? !form.username.trim() ||
                     !form.name.trim() ||
                     !form.email.trim() ||
                     !strength.isStrong ||
-                    !confirmMatches))
+                    !confirmMatches
+                  : !form.email.trim() || !form.password)
               }
             >
               {submitting

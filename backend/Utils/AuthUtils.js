@@ -29,16 +29,19 @@ const AuthUtils = {
   // input : user object
   // output : access token, refresh token
   issueTokens: (user) => {
-    const accessToken = jwt.sign(
-      { id: user.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30m" }
-    );
-    const refreshToken = jwt.sign(
-      { id: user.id },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" }
-    );
+    const accessSecret = process.env.ACCESS_TOKEN_SECRET;
+    const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+    if (!accessSecret || !refreshSecret) {
+      throw new Error(
+        "Missing ACCESS_TOKEN_SECRET or REFRESH_TOKEN_SECRET environment variables"
+      );
+    }
+    const accessToken = jwt.sign({ id: user.id }, accessSecret, {
+      expiresIn: "30m",
+    });
+    const refreshToken = jwt.sign({ id: user.id }, refreshSecret, {
+      expiresIn: "7d",
+    });
     return { accessToken, refreshToken };
   },
 
@@ -72,7 +75,7 @@ const AuthUtils = {
     };
     res.cookie("refreshToken", token, cookieOptions);
   },
-  
+
   clearRefreshTokenCookie: (res) => {
     res.clearCookie("refreshToken", {
       httpOnly: true,

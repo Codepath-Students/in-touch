@@ -40,7 +40,7 @@ const LandingPage = ({ onAuth }) => {
             <button className="btn-ghost" onClick={() => onAuth("login")}>
               Log In
             </button>
-            <button className="btn-primary" onClick={() => onAuth("login")}>
+            <button className="btn-primary" onClick={() => onAuth("signup")}>
               Sign Up
             </button>
           </div>
