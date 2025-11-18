@@ -59,7 +59,7 @@ const LandingPage = ({ onAuth }) => {
           <div className="flex justify-around gap-4 flex-wrap">
             <button
               className="btn-primary px-7 py-4"
-              onClick={() => onAuth("login")}
+              onClick={() => onAuth("signup")}
             >
               Get Started
             </button>
@@ -134,7 +134,7 @@ const LandingPage = ({ onAuth }) => {
           <div>
             <button
               className="btn-primary px-7 py-4"
-              onClick={() => onAuth("login")}
+              onClick={() => onAuth("signup")}
             >
               Start Your Journey
             </button>

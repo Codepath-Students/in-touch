@@ -29,8 +29,7 @@ AuthenticationRouter.post("/login", AuthenticationController.loginWithEmail);
 // Route for user signup with email and password
 AuthenticationRouter.post("/signup", AuthenticationController.signup);
 
-// Google OAuth routes
-
+// Google OAuth routes :
 // Route triggered when user clicks login/signup with Google
 AuthenticationRouter.get("/google", AuthenticationController.promptGoogle);
 
