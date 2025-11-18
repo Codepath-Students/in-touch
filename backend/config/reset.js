@@ -26,6 +26,10 @@ const resetDatabase = async () => {
             email_verification_token TEXT NULL,
             email_verification_token_expires_at TIMESTAMPTZ NULL,
 
+        -- password reset
+            password_reset_token TEXT NULL,
+            password_reset_token_expires_at TIMESTAMPTZ NULL,
+
         -- Optional Information
             profile_picture_url TEXT NOT NULL DEFAULT '',
             bio VARCHAR(500) NOT NULL DEFAULT '',
