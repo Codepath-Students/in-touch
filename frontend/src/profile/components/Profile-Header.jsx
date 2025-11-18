@@ -3,22 +3,24 @@ import React from "react";
 import "./ProfileHeader.css";
 
 export default function ProfileHeader({ profile, loading }) {
+  const displayName =
+    !loading && profile?.display_name
+      ? profile.display_name
+      : loading
+      ? "Loading..."
+      : "Unknown User";
 
-  let name = "Loading...";
-  if (!loading && profile && (profile.firstname || profile.lastname)) {
-    name = [profile.firstname, profile.lastname].filter(Boolean).join(" ");
-  } else if (!loading && (!profile || (!profile.firstname && !profile.lastname))) {
-    name = "Unknown User";
-  }
+  const initials =
+    !loading && profile?.display_name
+      ? profile.display_name
+          .split(" ")
+          .filter(Boolean)
+          .map((w) => w[0].toUpperCase())
+          .join("")
+          .slice(0, 2)
+      : "IN";
 
-  const initials = !loading && profile && profile.firstname
-    ? profile.firstname
-        .split(" ")
-        .filter(Boolean)
-        .map((word) => word[0].toUpperCase())
-        .join("")
-        .slice(0, 2)
-    : "MF";
+  const subline = !loading && profile?.username ? `@${profile.username}` : "";
 
   return (
     <section className="profile-header-card">
@@ -29,8 +31,8 @@ export default function ProfileHeader({ profile, loading }) {
       </div>
 
       <div className="profile-header-text">
-        <h2 className="profile-header-name">{name}</h2>
-        <p className="profile-header-tagline">Premium User</p>
+        <h2 className="profile-header-name">{displayName}</h2>
+        <p className="profile-header-tagline">{subline || "Member"}</p>
       </div>
     </section>
   );

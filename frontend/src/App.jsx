@@ -5,7 +5,8 @@ import LandingPage from "./pages/Landing-Page.jsx";
 import AuthModal from "./components/AuthModal.jsx";
 import CompleteProfile from "./pages/Complete-Profile.jsx";
 import ProfilePage from "./profile/Profile-Page.jsx";
-import { ensureCsrf } from "./services/api.js";
+import { ensureCsrf, setAccessToken } from "./services/api.js";
+import NavBar from "./components/NavBar.jsx";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -33,12 +34,11 @@ function App() {
     const needsUsername = googleParams.get("needsUsername") === "true";
     if (token) {
       // Store token in memory or app state later. For now, just show success.
+      setAccessToken(token);
       if (needsUsername) {
         navigate("/complete-profile");
       } else {
-        setAuthInfo("Logged in with Google successfully.");
-        setAuthMode("login");
-        setAuthOpen(true);
+        navigate("/profile");
       }
       // Optionally clean URL (no router changes here to keep it simple)
       const url = new URL(window.location.href);
@@ -50,6 +50,7 @@ function App() {
 
   return (
     <>
+      <NavBar onAuth={openAuth} />
       <Routes>
         <Route path="/" element={<LandingPage onAuth={openAuth} />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />

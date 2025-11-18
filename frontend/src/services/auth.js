@@ -1,4 +1,4 @@
-import api, { ensureCsrf } from "./api";
+import api, { ensureCsrf, setAccessToken } from "./api";
 
 /**
  * Sign up with email/password
@@ -46,6 +46,7 @@ export async function login(payload) {
     await ensureCsrf();
     const { email, password } = payload;
     const res = await api.post("/auth/login", { email, password });
+    if (res.data?.accessToken) setAccessToken(res.data.accessToken);
     return res.data; // { accessToken }
   } catch (err) {
     const status = err?.response?.status;
@@ -57,5 +58,18 @@ export async function login(payload) {
       });
     }
     throw Object.assign(new Error(message), { code: "UNKNOWN" });
+  }
+}
+
+/**
+ * Log out the current user (server + client)
+ */
+export async function logout() {
+  try {
+    await ensureCsrf();
+    await api.post("/auth/logout");
+  } finally {
+    // Clear token locally regardless of server response
+    setAccessToken(null);
   }
 }

@@ -12,40 +12,22 @@ import {
 
 const LandingPage = ({ onAuth }) => {
   const Feature = ({ icon: Icon, title, children }) => {
-  return (
-    <div className="text-center flex flex-col items-center gap-3 hover:scale-[1.08] transition-transform duration-300 cursor-default bg-surface-900 rounded-lg p-6 shadow">
-      <div className="h-25 w-25 bg-[var(--color-primary-600)] rounded-full mb-2">
-        <Icon className="h-10 w-10 mt-6 justify-self-center" />
+    return (
+      <div className="text-center flex flex-col items-center gap-3 hover:scale-[1.08] transition-transform duration-300 cursor-default bg-surface-900 rounded-lg p-6 shadow">
+        <div className="h-25 w-25 bg-[var(--color-primary-600)] rounded-full mb-2">
+          <Icon className="h-10 w-10 mt-6 justify-self-center" />
+        </div>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="mt-1 text-sm text-[var(--color-foreground)] max-w-[280px]">
+          {children}
+        </p>
       </div>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-[var(--color-foreground)] max-w-[280px]">{children}</p>
-    </div>
-  );
-};
+    );
+  };
   return (
     <div className="min-h-screen overflow-x-hidden">
       {/* Unified background – no framed surface wrapper */}
       <div className="mx-auto w-full max-w-7xl px-6 py-12 flex flex-col gap-16 flex-1">
-        {/* Header (much larger brand) */}
-        <header className="flex items-center gap-16 justify-between">
-          <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-full bg-[var(--color-primary-600)] text-white shadow">
-              <Heart className="h-8 w-8 sm:h-10 sm:w-10" />
-            </div>
-            <span className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              In Touch
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="btn-ghost" onClick={() => onAuth("login")}>
-              Log In
-            </button>
-            <button className="btn-primary" onClick={() => onAuth("signup")}>
-              Sign Up
-            </button>
-          </div>
-        </header>
-
         {/* Hero */}
         <section className="mx-auto max-w-4xl text-center flex flex-col gap-8">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold leading-[1.05] tracking-tight">

@@ -97,7 +97,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
         {(tab === "google" || mode === "signup") && (
           <div className="card p-5 flex flex-col gap-4 mt-4">
             <p className="text-base text-[var(--color-muted)]">
-              Sign up quickly with your Google account.
+              Sign up/Log in quickly with your Google account.
             </p>
             <button
               className="btn-primary w-full"
@@ -368,7 +368,7 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
               </div>
             ) : (
               <div className="helper-text">
-                Use any placeholder credentials for now.
+                Fill in your email and password to log in.
               </div>
             )}
 

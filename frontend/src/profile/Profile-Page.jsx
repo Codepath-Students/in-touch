@@ -1,59 +1,113 @@
 // src/pages/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { getProfile, updateProfileBio, updateProfileDetails } from "./services/Profile-Service";
+import { getCurrentUser, updateCurrentUser } from "../services/users";
 
 import ProfileBio from "./components/Profile-Bio";
 import ProfileDetails from "./components/Profile-Details";
-import ProfileHeader from "./components/Profile-Header";   
+import ProfileHeader from "./components/Profile-Header";
+import ErrorBox from "../components/ErrorBox";
+import { useNavigate } from "react-router-dom";
 
-import "./ProfilePage.css"
+import "./ProfilePage.css";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [savingBio, setSavingBio] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [savingDetails, setSavingDetails] = useState(false);
+  // Centralized, frontend-only draft for editable fields
+  const [profileDraft, setProfileDraft] = useState(null);
+
+  async function loadProfile() {
+    setLoading(true);
+    setError("");
+    // Fast-fail if no access token present to avoid hanging on refresh attempts
+    try {
+      const hasToken = Boolean(window?.localStorage?.getItem("access_token"));
+      if (!hasToken) {
+        setError("You must be logged in to view this page.");
+        setLoading(false);
+        return;
+      }
+    } catch {}
+    try {
+      const user = await getCurrentUser();
+      setProfile(user);
+      setProfileDraft({
+        display_name: user?.display_name || "",
+        username: user?.username || "",
+        bio: user?.bio || "",
+        personality_type: user?.personality_type || "",
+        nearest_city: user?.nearest_city || "",
+        hobbies: user?.hobbies || "",
+        profile_picture_url: user?.profile_picture_url || "",
+      });
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError("You must be logged in to view this page.");
+      } else {
+        setError(
+          err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Could not load profile"
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadProfile() {
-        try {
-        const data = await getProfile();
-        setProfile(data);
-        } catch (err) {
-        setError(err.message || "Could not load profile");
-        } finally {
-        setLoading(false);
-        }
-    }
-
     loadProfile();
   }, []);
 
-  const handleSaveBio = async (newBio) => {
-    if (!profile) return;
+  // Single update method for any profile changes
+  const handleUpdateProfile = async (patch) => {
+    if (!patch || Object.keys(patch).length === 0) return;
     try {
-      setSavingBio(true);
-      const updated = await updateProfileBio(profile.id, newBio);
+      setSaving(true);
+      const updated = await updateCurrentUser(patch);
       setProfile(updated);
+      setProfileDraft({
+        display_name: updated?.display_name || "",
+        username: updated?.username || "",
+        bio: updated?.bio || "",
+        personality_type: updated?.personality_type || "",
+        nearest_city: updated?.nearest_city || "",
+        hobbies: updated?.hobbies || "",
+        profile_picture_url: updated?.profile_picture_url || "",
+      });
     } catch (err) {
-      setError(err.message || "Could not save bio");
+      setError(err.message || "Could not update profile");
     } finally {
-      setSavingBio(false);
+      setSaving(false);
     }
   };
 
-  const handleSaveDetails = async (details) => {
-    if (!profile) return;
-    setSavingDetails(true);
-    try {
-      const updated = await updateProfileDetails(profile.id, details);
-      setProfile(updated);
-    } catch (err) {
-      setError(err.message || "Could not save profile details");
-    } finally {
-      setSavingDetails(false);
-    }
+  // Field editor to mutate centralized draft state
+  const editProfileField = (field, value) => {
+    setProfileDraft((prev) => ({ ...(prev || {}), [field]: value }));
+  };
+
+  // Save helpers for child components
+  const saveDetailsFromDraft = () => {
+    if (!profileDraft) return;
+    const patch = {
+      display_name: profileDraft.display_name,
+      username: profileDraft.username,
+      personality_type: profileDraft.personality_type,
+      nearest_city: profileDraft.nearest_city,
+      hobbies: profileDraft.hobbies,
+    };
+    return handleUpdateProfile(patch);
+  };
+
+  const saveBioFromDraft = () => {
+    if (!profileDraft) return;
+    return handleUpdateProfile({ bio: profileDraft.bio });
   };
 
   return (
@@ -65,20 +119,38 @@ export default function ProfilePage() {
         </p>
       </header>
 
-      {error && <div className="profile-page-error">{error}</div>}
+      {error && (
+        <ErrorBox
+          title="Unable to load profile"
+          message={error}
+          onHome={() => navigate("/")}
+        />
+      )}
 
-      <div className="profile-page-grid">
-        <ProfileHeader profile={profile} loading={loading} />
-        <ProfileDetails profile={profile} loading={loading} saving={savingDetails}
-          onSaveDetails={handleSaveDetails} />
-      </div>
+      {!error && (
+        <>
+          <div className="profile-page-grid">
+            <ProfileHeader profile={profile} loading={loading} />
+            <ProfileDetails
+              profile={profile}
+              draft={profileDraft}
+              loading={loading}
+              saving={saving}
+              onEditField={editProfileField}
+              onSave={saveDetailsFromDraft}
+            />
+          </div>
 
-      <ProfileBio
-        profile={profile}
-        loading={loading}
-        saving={savingBio}
-        onSaveBio={handleSaveBio}
-      />
+          <ProfileBio
+            profile={profile}
+            bioValue={profileDraft?.bio || ""}
+            onEditField={editProfileField}
+            loading={loading}
+            saving={saving}
+            onSave={saveBioFromDraft}
+          />
+        </>
+      )}
     </div>
   );
 }

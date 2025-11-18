@@ -92,10 +92,10 @@ Inputs
   {
   connection_name: string (required, max 100),
   reminder_frequency_days: integer > 0 (required),
-  reach_out_priority: integer 0–10 (optional, default 0),
-  notes: string (optional),
-  connection_type: string (optional, default "acquaintance", max 50),
-  know_from: string (optional, max 255)
+  reach_out_priority: integer 0–10 (optional; defaults to 0 when omitted),
+  notes: string (optional; defaults to empty string when omitted),
+  connection_type: string (optional; defaults to "acquaintance" when omitted, max 50),
+  know_from: string (optional; defaults to empty string when omitted)
   }
 
 Responses
@@ -108,7 +108,7 @@ Responses
 5. PUT /api/connections/:connectionId
    Purpose
 
-- Partial update of a connection (only provided fields change).
+- Partial update of a connection (only provided fields change; omitted fields remain unchanged).
 
 Inputs
 

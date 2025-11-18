@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { updateCurrentUser } from "../services/users";
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
   const [form, setForm] = useState({
     username: "",
     bio: "",
@@ -49,11 +51,26 @@ const CompleteProfile = () => {
 
           <form
             className="mt-2 grid gap-6"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              navigate("/");
+              // Build minimal patch to avoid overwriting unspecified fields
+              const patch = Object.fromEntries(
+                Object.entries(form).filter(
+                  ([, v]) => v !== "" && v !== null && v !== undefined
+                )
+              );
+              try {
+                setError("");
+                await updateCurrentUser(patch);
+                navigate("/profile");
+              } catch (err) {
+                setError(err.message || "Could not update profile");
+              }
             }}
           >
+            {error && (
+              <div className="text-red-500 text-sm md:text-base">{error}</div>
+            )}
             <div>
               <label className="block text-sm md:text-xl font-medium text-[var(--color-muted)]">
                 Username <span className="text-red-500">*</span>
