@@ -44,6 +44,13 @@ const oauthLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+const verifyEmailLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 // Route for verifying access token
 AuthenticationRouter.post(
   "/verify-token",
@@ -99,7 +106,7 @@ AuthenticationRouter.get(
 AuthenticationRouter.post("/logout", AuthenticationController.logout);
 
 // Route for verifying user email
-AuthenticationRouter.get("/verify-email", AuthenticationController.verifyEmail);
+AuthenticationRouter.get("/verify-email", verifyEmailLimiter, AuthenticationController.verifyEmail);
 
 // Route for initiating password reset
 AuthenticationRouter.post(
