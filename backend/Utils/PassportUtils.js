@@ -49,15 +49,16 @@ const PassportUtils = {
                 // We set is_email_verified to TRUE because it came from Google
                 const displayName = profile.displayName;
                 
-                const res = await pool.query(
+                const insertRes = await pool.query(
                     `INSERT INTO users 
-                    (email, display_name, google_sub_id, is_email_verified, profile_picture_url) 
-                    VALUES ($1, $2, $3, true, $4)`,
+                     (email, display_name, google_sub_id, is_email_verified, profile_picture_url) 
+                     VALUES ($1, $2, $3, true, $4)
+                     RETURNING id`,
                     [email, displayName, profile.id, profile.photos[0]?.value || '']
                 );
 
                 const newUser = {
-                    id: res.rows[0]?.id,
+                    id: insertRes.rows[0].id,
                     email: email,
                     display_name: displayName,
                     google_sub_id: profile.id,

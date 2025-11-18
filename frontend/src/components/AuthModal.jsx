@@ -1,8 +1,51 @@
 import React, { useState } from "react";
-import { Chrome, Mail, Lock, User } from "lucide-react";
+import {
+  Chrome,
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  AtSign,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+import { signup as signupApi } from "../services/auth";
+
+// Password strength checker
+const passwordStrength = (pw) => {
+  const lengthOk = pw.length >= 8;
+  const lowerOk = /[a-z]/.test(pw);
+  const upperOk = /[A-Z]/.test(pw);
+  const numberOk = /\d/.test(pw);
+  const specialOk = /[^A-Za-z0-9]/.test(pw);
+  const isStrong = lengthOk && lowerOk && upperOk && numberOk && specialOk;
+  return { lengthOk, lowerOk, upperOk, numberOk, specialOk, isStrong };
+};
 
 const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
   const [tab, setTab] = useState("credentials"); // 'google' | 'credentials'
+  const [form, setForm] = useState({
+    username: "",
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+
+  const updateField = (key) => (e) =>
+    setForm((f) => ({ ...f, [key]: e.target.value }));
+  const strength = React.useMemo(
+    () => passwordStrength(form.password),
+    [form.password]
+  );
+  const confirmMatches =
+    mode === "signup" ? form.confirmPassword === form.password : true;
   if (!open) return null;
 
   const stop = (e) => e.stopPropagation();
@@ -57,39 +100,272 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
         )}
 
         {tab === "credentials" && (
-          <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="auth-form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (mode !== "signup") return; // login not implemented yet
+              setError("");
+              setInfo("");
+              // basic client validation
+              if (!strength.isStrong) {
+                setError(
+                  "Password is not strong enough. Please meet all requirements."
+                );
+                return;
+              }
+              if (!confirmMatches) {
+                setError("Passwords do not match.");
+                return;
+              }
+              setSubmitting(true);
+              try {
+                const res = await signupApi({
+                  username: form.username.trim(),
+                  name: form.name.trim(),
+                  email: form.email.trim(),
+                  password: form.password,
+                });
+                // On success, backend sends email. Inform user.
+                setInfo(
+                  res?.message ||
+                    "If this email belongs to you, a verification link has been sent."
+                );
+                // Soft reset sensitive fields
+                setForm((f) => ({
+                  ...f,
+                  password: "",
+                  confirmPassword: "",
+                }));
+                setShowPassword(false);
+                setShowConfirmPassword(false);
+              } catch (err) {
+                if (err?.code === "EMAIL_TAKEN") {
+                  setError("That email is already registered.");
+                } else if (err?.code === "USERNAME_TAKEN") {
+                  setError("That username is already taken.");
+                } else {
+                  setError(err?.message || "Signup failed. Please try again.");
+                }
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+          >
             {mode === "signup" && (
-              <div>
-                <label htmlFor="name">Name</label>
-                <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-[var(--color-muted)]" />
-                  <input id="name" placeholder="Your name" type="text" />
+              <>
+                <div className="w-full">
+                  <label htmlFor="username">
+                    Username <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-3 w-full">
+                    <AtSign className="h-5 w-5 text-[var(--color-muted)]" />
+                    <input
+                      id="username"
+                      className="w-full flex-1"
+                      placeholder="your_username"
+                      type="text"
+                      required
+                      value={form.username}
+                      onChange={updateField("username")}
+                    />
+                  </div>
                 </div>
+
+                <div className="w-full">
+                  <label htmlFor="name">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-3 w-full">
+                    <User className="h-5 w-5 text-[var(--color-muted)]" />
+                    <input
+                      id="name"
+                      className="w-full flex-1"
+                      placeholder="First_Name Last_Name"
+                      type="text"
+                      required
+                      value={form.name}
+                      onChange={updateField("name")}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="w-full">
+              <label htmlFor="email">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3 w-full">
+                <Mail className="h-5 w-5 text-[var(--color-muted)]" />
+                <input
+                  id="email"
+                  className="w-full flex-1"
+                  placeholder="you@example.com"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={updateField("email")}
+                />
+              </div>
+            </div>
+
+            <div className="w-full">
+              <label htmlFor="password">
+                Password <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3 w-full">
+                <Lock className="h-5 w-5 text-[var(--color-muted)]" />
+                <input
+                  id="password"
+                  className="w-full flex-1"
+                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={form.password}
+                  onChange={updateField("password")}
+                />
+                <button
+                  type="button"
+                  className="p-1 text-[var(--color-muted)]"
+                  onClick={() => setShowPassword((s) => !s)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {mode === "signup" && (
+              <div className="w-full">
+                <label htmlFor="confirmPassword">
+                  Confirm Password <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-3 w-full">
+                  <Lock className="h-5 w-5 text-[var(--color-muted)]" />
+                  <input
+                    id="confirmPassword"
+                    className="w-full flex-1"
+                    placeholder="••••••••"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={form.confirmPassword}
+                    onChange={updateField("confirmPassword")}
+                    aria-invalid={form.confirmPassword && !confirmMatches}
+                  />
+                  <button
+                    type="button"
+                    className="p-1 text-[var(--color-muted)]"
+                    onClick={() => setShowConfirmPassword((s) => !s)}
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {form.confirmPassword && !confirmMatches && (
+                  <p className="mt-1 text-sm text-red-500">
+                    Passwords do not match.
+                  </p>
+                )}
               </div>
             )}
-            <div>
-              <label htmlFor="email">Email</label>
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-[var(--color-muted)]" />
-                <input id="email" placeholder="you@example.com" type="email" />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="password">Password</label>
-              <div className="flex items-center gap-3">
-                <Lock className="h-5 w-5 text-[var(--color-muted)]" />
-                <input id="password" placeholder="••••••••" type="password" />
-              </div>
-            </div>
 
-            <div className="helper-text">
-              {mode === "login"
-                ? "Use any placeholder credentials for now."
-                : "Choose a strong password. (Demo placeholder)"}
-            </div>
+            {mode === "signup" ? (
+              <div className="mt-2 text-sm">
+                <p className="mb-1 text-[var(--color-muted)]">
+                  Password must include:
+                </p>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    {strength.lengthOk ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span>At least 8 characters</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {strength.lowerOk ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span>One lowercase letter</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {strength.upperOk ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span>One uppercase letter</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {strength.numberOk ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span>One number</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {strength.specialOk ? (
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <span>One special character</span>
+                  </li>
+                </ul>
+                {form.password && strength.isStrong && (
+                  <p className="mt-2 text-green-600">Strong password ✔</p>
+                )}
+              </div>
+            ) : (
+              <div className="helper-text">
+                Use any placeholder credentials for now.
+              </div>
+            )}
 
-            <button className="btn-primary w-full mt-1" type="button">
-              {mode === "login" ? "Log In" : "Sign Up"}
+            {error && (
+              <p className="mt-2 text-sm text-red-500" role="alert">
+                {error}
+              </p>
+            )}
+            {info && (
+              <p className="mt-2 text-sm text-green-600" role="status">
+                {info}
+              </p>
+            )}
+
+            <button
+              className="btn-primary w-full mt-1 disabled:opacity-60"
+              type={mode === "login" ? "button" : "submit"}
+              disabled={
+                submitting ||
+                (mode === "signup" &&
+                  (!form.username.trim() ||
+                    !form.name.trim() ||
+                    !form.email.trim() ||
+                    !strength.isStrong ||
+                    !confirmMatches))
+              }
+            >
+              {submitting
+                ? "Submitting..."
+                : mode === "login"
+                ? "Log In"
+                : "Sign Up"}
             </button>
 
             <div className="switch-auth">

@@ -5,7 +5,9 @@ dotenv.config();
 
 // Note: This uses Ethereal Email for testing purposes. In a production environment, you would use a real email service. 
 const transporter = nodemailer.createTransport({
-  service: 'smtp.ethereal.email',
+  host: 'smtp.ethereal.email',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -26,6 +28,7 @@ export const sendVerificationEmail = async (to, token, userId) => {
     try {
         const info = await transporter.sendMail(mailOptions);
         console.log('Verification email sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     } catch (error) {
         console.error('Error sending verification email: %s', error.message);
     }

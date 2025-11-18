@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import UsersRouter from './routers/users.js';
 import AuthenticationRouter from './routers/authentication.js';
 import ConnectionsRouter from './routers/connections.js';
@@ -15,7 +17,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+app.use(cookieParser());
+app.use(passport.initialize());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "frontend", "public")));
 

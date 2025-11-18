@@ -1,4 +1,4 @@
-import { get } from "http";
+// import { get } from "http";
 import pool from "../config/database.js";
 
 const GeneralUtils = {
@@ -6,7 +6,7 @@ const GeneralUtils = {
     // input: email (string)
     // output: boolean
     uniqueEmail: async (email) => {
-        const res = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+        const res = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
         return res.rows.length === 0;
     },
 
@@ -14,12 +14,12 @@ const GeneralUtils = {
     // input: username (string)
     // output: boolean
     uniqueUsername: async (username) => {
-        const res = await pool.query('SELECT id FROM users WHERE username = ?', [username]);
+        const res = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
         return res.rows.length === 0;
     },
 
     getUserByEmail: async (email) => {
-        const res = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        const res = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (res.rows.length === 0) {
             return null;
         }
@@ -27,7 +27,7 @@ const GeneralUtils = {
     },
 
     getUserById: async (id) => {
-        const res = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+        const res = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
         if (res.rows.length === 0) {
             return null;
         }
