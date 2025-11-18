@@ -1,19 +1,26 @@
-import express from 'express';
+import express from "express";
 import rateLimit from "express-rate-limit";
-import UsersController from '../controllers/users.js';
-import { requireAccessToken } from '../middleware/auth.js';
+import UsersController from "../controllers/users.js";
+import { requireAccessToken } from "../middleware/auth.js";
+
+const UsersRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  max: 30, // limit each IP to 30 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const UsersRouter = express.Router();
 
+UsersRouter.use(UsersRateLimiter);
 
+// Route to get user profile information (requires authentication)
+UsersRouter.get("", requireAccessToken, UsersController.getProfile);
 
-// Route to get user profile information (requires authentication) -- uses requireAccessToken middleware so don't need to pass user ID in URL (in future when we want to allow getting other users' profiles we can modify this and will probably have seperate views for own profile vs others)
-UsersRouter.get('', requireAccessToken, UsersController.getProfile);
+// Route to update user profile information (requires authentication)
+UsersRouter.put("", requireAccessToken, UsersController.updateProfile);
 
-// Route to update user profile information (requires authentication) --- once again since we have requireAccessToken middleware we can get user ID from req.user.id
-UsersRouter.put('', requireAccessToken, UsersController.updateProfile);
-
-// Route to delete user account (requires authentication) -- once again since we have requireAccessToken middleware we can get user ID from req.user.id
-UsersRouter.delete('', requireAccessToken, UsersController.deleteAccount);
+// Route to delete user account (requires authentication)
+UsersRouter.delete("", requireAccessToken, UsersController.deleteAccount);
 
 export default UsersRouter;
