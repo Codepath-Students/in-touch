@@ -29,6 +29,7 @@ AuthenticationRouter.post(
 // Route to issue new access token using refresh token (from cookie)
 AuthenticationRouter.post(
   "/token/refresh",
+  verifyTokenRateLimiter,
   verifyRefreshToken,
   AuthenticationController.refreshAccessToken
 );
