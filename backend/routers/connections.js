@@ -13,9 +13,9 @@ const connectionsRateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-ConnectionsRouter.use(requireAccessToken);
-
 ConnectionsRouter.use(connectionsRateLimiter);
+
+ConnectionsRouter.use(requireAccessToken);
 
 //Note that for a given request we should be able to get the user ID from req.user.id because of the requireAccessToken middleware
 
