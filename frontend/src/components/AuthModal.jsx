@@ -23,7 +23,7 @@ const passwordStrength = (pw) => {
   return { lengthOk, lowerOk, upperOk, numberOk, specialOk, isStrong };
 };
 
-const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
+const AuthModal = ({ open, mode, onClose, onSwitchMode, initialInfo }) => {
   const [tab, setTab] = useState("credentials"); // 'google' | 'credentials'
   const [form, setForm] = useState({
     username: "",
@@ -37,6 +37,9 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  React.useEffect(() => {
+    if (initialInfo) setInfo(initialInfo);
+  }, [initialInfo]);
 
   const updateField = (key) => (e) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -92,7 +95,17 @@ const AuthModal = ({ open, mode, onClose, onSwitchMode }) => {
             <p className="text-base text-[var(--color-muted)]">
               Placeholder for Google OAuth. This button doesn’t do anything yet.
             </p>
-            <button className="btn-primary w-full">
+            <button
+              className="btn-primary w-full"
+              type="button"
+              onClick={() => {
+                const base = import.meta?.env?.VITE_BACKEND_URL || "";
+                const url = base
+                  ? `${base.replace(/\/$/, "")}/api/auth/google`
+                  : `/api/auth/google`;
+                window.location.href = url;
+              }}
+            >
               <Chrome className="h-5 w-5 mr-2" />
               Continue with Google
             </button>

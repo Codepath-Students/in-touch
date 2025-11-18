@@ -64,14 +64,16 @@ const AuthenticationController = {
       // Set the Refresh Token in HttpOnly Cookie
       AuthUtils.setRefreshTokenCookie(res, tokens.refreshToken);
 
-      // Determine Redirect URL
-      // If username is NULL, force them to complete profile
+      // Determine whether we need username completion
       const redirectBase = process.env.FRONTEND_URL || "http://localhost:5173";
-      const targetPath = user.username ? "/connections" : "/complete-profile";
+      const needsUsername = !user.username;
 
-      // Redirect to frontend with Access Token in URL
-      // Your frontend will parse this, store it in memory, and clear it from URL
-      res.redirect(`${redirectBase}${targetPath}?token=${tokens.accessToken}`);
+      // Redirect to frontend with Access Token and needsUsername flag in URL
+      // Frontend will parse this and show username box if needed
+      const url = `${redirectBase}?token=${encodeURIComponent(
+        tokens.accessToken
+      )}&needsUsername=${needsUsername ? "true" : "false"}`;
+      res.redirect(url);
     })(req, res, next);
   },
 
@@ -129,11 +131,9 @@ const AuthenticationController = {
       // 4. Send the email with the PLAIN token and the USER ID
       await sendVerificationEmail(email, plain_token, newUserId);
 
-      return res
-        .status(201)
-        .json({
-          message: "User registered successfully. Please check your email.",
-        });
+      return res.status(201).json({
+        message: "User registered successfully. Please check your email.",
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Error registering user" });
@@ -169,11 +169,9 @@ const AuthenticationController = {
         !user.email_verification_token ||
         !user.email_verification_token_expires_at
       ) {
-        return res
-          .status(400)
-          .json({
-            message: "No verification token found. Please request a new one.",
-          });
+        return res.status(400).json({
+          message: "No verification token found. Please request a new one.",
+        });
       }
 
       // 4. Check Expiration (Compare Database time vs Current time)
@@ -285,9 +283,13 @@ const AuthenticationController = {
 
       // 2. Check Expiration
       const prtExpiresAt = user.password_reset_token_expires_at
-       ? new Date(user.password_reset_token_expires_at)
-       : null;
-     if (!prtExpiresAt || isNaN(prtExpiresAt.getTime()) || prtExpiresAt < new Date()) {
+        ? new Date(user.password_reset_token_expires_at)
+        : null;
+      if (
+        !prtExpiresAt ||
+        isNaN(prtExpiresAt.getTime()) ||
+        prtExpiresAt < new Date()
+      ) {
         return res.status(400).json({ message: "Reset link has expired." });
       }
 
