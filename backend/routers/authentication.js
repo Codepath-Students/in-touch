@@ -1,12 +1,21 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import AuthenticationController from "../controllers/authentication.js";
 import { verifyRefreshToken } from "../middleware/auth.js";
 
 const AuthenticationRouter = express.Router();
 
+// Rate limiter for sensitive authentication endpoints
+const verifyTokenRateLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  max: 5, // limit each IP to 5 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 // Route for verifying access token
 AuthenticationRouter.post(
   "/verify-token",
+  verifyTokenRateLimiter,
   AuthenticationController.verifyAccessToken
 );
 
