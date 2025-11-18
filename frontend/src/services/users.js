@@ -50,3 +50,25 @@ export async function updateCurrentUser(patch = {}) {
     throw Object.assign(new Error(message), { code: "UNKNOWN" });
   }
 }
+
+// DELETE /api/users -> 204 No Content
+export async function deleteAccount() {
+  try {
+    await ensureCsrf();
+    await api.delete("/users");
+    return true;
+  } catch (err) {
+    const status = err?.response?.status;
+    const message =
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      "Delete failed";
+    if (status === 401) {
+      throw Object.assign(new Error("Unauthorized"), {
+        code: "UNAUTHORIZED",
+        message: "Unauthorized",
+      });
+    }
+    throw Object.assign(new Error(message), { code: "UNKNOWN" });
+  }
+}

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart, User, Users as UsersIcon, LogOut } from "lucide-react";
+import { Heart, User, Users as UsersIcon, LogOut, Trash2 } from "lucide-react";
 import { logout } from "../services/auth";
+import { deleteAccount } from "../services/users";
 import ConfirmModal from "./ConfirmModal";
 
 export default function NavBar({ onAuth }) {
@@ -17,6 +18,9 @@ export default function NavBar({ onAuth }) {
   const [showLogout, setShowLogout] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     const onToken = (e) => setIsLoggedIn(Boolean(e?.detail?.token));
@@ -74,6 +78,13 @@ export default function NavBar({ onAuth }) {
                   <LogOut className="h-4 w-4" />
                   <span>Log Out</span>
                 </button>
+                <button
+                  className="btn-ghost flex items-center gap-2 text-red-300 hover:text-red-200"
+                  onClick={() => setShowDelete(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Delete Account</span>
+                </button>
               </>
             ) : (
               <>
@@ -118,6 +129,35 @@ export default function NavBar({ onAuth }) {
             );
           } finally {
             setLoggingOut(false);
+          }
+        }}
+      />
+      <ConfirmModal
+        open={showDelete}
+        title="Delete account?"
+        message="This action is permanent and cannot be undone. All your data will be removed."
+        confirmText={deleting ? "Deleting..." : "Yes, delete"}
+        cancelText="Cancel"
+        busy={deleting}
+        error={deleteError}
+        onCancel={() => {
+          if (!deleting) setShowDelete(false);
+        }}
+        onConfirm={async () => {
+          setDeleteError("");
+          setDeleting(true);
+          try {
+            await deleteAccount();
+            // Ensure tokens are cleared (if server didn't) and go home
+            await logout();
+            setShowDelete(false);
+            navigate("/");
+          } catch (e) {
+            setDeleteError(
+              e?.message || "Failed to delete account. Please try again."
+            );
+          } finally {
+            setDeleting(false);
           }
         }}
       />
