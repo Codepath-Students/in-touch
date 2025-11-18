@@ -4,6 +4,7 @@ export const PROFILE_LIMITS = {
   personality_type: 50,
   nearest_city: 100,
   hobbies: 255,
+  hobbyItem: 25,
 };
 
 export function applyLimit(value = "", max) {

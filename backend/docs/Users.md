@@ -25,7 +25,7 @@ Inputs
 
 Responses
 
-- 200: { user: { id, email, display_name, username, created_at, last_login_at, profile_picture_url, bio, personality_type, nearest_city, hobbies } }
+- 200: { user: { id, email, display_name, username, created_at, last_login_at, profile_picture_url, bio, personality_type, nearest_city, hobbies: string[] } }
 - 401: { message: "Missing access token" } or { message: "Invalid or expired access token" }
 - 404: { error: "User not found" }
 - 500: { error: "Internal Server Error" }
@@ -46,12 +46,12 @@ Inputs
   bio: string,
   personality_type: string,
   nearest_city: string,
-  hobbies: string
+  hobbies: string[] // optional; up to 4 items, each <= 25 chars
   }
 
 Responses
 
-- 200: { user: { id, email, username, display_name, profile_picture_url, bio, personality_type, nearest_city, hobbies, created_at } }
+- 200: { user: { id, email, username, display_name, profile_picture_url, bio, personality_type, nearest_city, hobbies: string[], created_at } }
 - 400: { error: "Username already in use" } (unique violation)
 - 401: { message: "Missing access token" } or { message: "Invalid or expired access token" }
 - 404: { error: "User not found" }
@@ -66,7 +66,7 @@ Notes
   - bio ≤ 500 chars
   - personality_type ≤ 50 chars
   - nearest_city ≤ 100 chars
-  - hobbies ≤ 255 chars
+  - hobbies: array up to 4 items; each hobby name ≤ 25 chars
 - Consider adding client-side validation for username length/pattern.
 
 3. DELETE /api/users

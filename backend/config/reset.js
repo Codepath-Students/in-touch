@@ -1,11 +1,16 @@
-import pool from './database.js';
+import pool from "./database.js";
 
 const resetDatabase = async () => {
-    // TODO: implement database reset logic here
-    const removeTablesQuery = `DROP TABLE IF EXISTS connections; DROP TABLE IF EXISTS users;`;
+  // TODO: implement database reset logic here
+  const removeTablesQuery = `
+        DROP TABLE IF EXISTS user_hobbies;
+        DROP TABLE IF EXISTS connections;
+        DROP TABLE IF EXISTS hobbies;
+        DROP TABLE IF EXISTS users;
+    `;
 
-    // create users table query string
-    const createUsersTableQuery = `
+  // create users table query string
+  const createUsersTableQuery = `
         CREATE TABLE users (
         -- User information
             id SERIAL PRIMARY KEY,
@@ -35,14 +40,30 @@ const resetDatabase = async () => {
             bio VARCHAR(500) NOT NULL DEFAULT '',
             personality_type VARCHAR(50) NOT NULL DEFAULT '',
             nearest_city VARCHAR(100) NOT NULL DEFAULT '',
-            hobbies VARCHAR(255) NOT NULL DEFAULT '',
+            -- hobbies moved to many-to-many via user_hobbies
 
         -- Constraints
            CONSTRAINT chk_email_format CHECK (POSITION('@' IN email) > 1) 
         );
-    `; 
+    `;
 
-    const createConnectionsTableQuery = `
+  const createHobbiesTableQuery = `
+        CREATE TABLE hobbies (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(25) UNIQUE NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+
+  const createUserHobbiesTableQuery = `
+        CREATE TABLE user_hobbies (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            hobby_id INTEGER NOT NULL REFERENCES hobbies(id) ON DELETE CASCADE,
+            PRIMARY KEY (user_id, hobby_id)
+        );
+    `;
+
+  const createConnectionsTableQuery = `
         CREATE TABLE connections (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
@@ -62,19 +83,23 @@ const resetDatabase = async () => {
         );
     `;
 
-    try {
-        const client = await pool.connect();
-        await client.query(removeTablesQuery);
-        console.log("✅ Dropped existing tables.");
-        await client.query(createUsersTableQuery);
-        console.log("✅ Created users table.");
-        await client.query(createConnectionsTableQuery);
-        console.log("✅ Created connections table.");
-        client.release();
-    } catch (error) {
-        console.error("Error resetting database:", error);
-        throw error;
-    }
+  try {
+    const client = await pool.connect();
+    await client.query(removeTablesQuery);
+    console.log("✅ Dropped existing tables.");
+    await client.query(createUsersTableQuery);
+    console.log("✅ Created users table.");
+    await client.query(createHobbiesTableQuery);
+    console.log("✅ Created hobbies table.");
+    await client.query(createUserHobbiesTableQuery);
+    console.log("✅ Created user_hobbies table.");
+    await client.query(createConnectionsTableQuery);
+    console.log("✅ Created connections table.");
+    client.release();
+  } catch (error) {
+    console.error("Error resetting database:", error);
+    throw error;
+  }
 };
 
 resetDatabase();
