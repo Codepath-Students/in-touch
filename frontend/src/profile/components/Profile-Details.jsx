@@ -112,19 +112,9 @@ export default function ProfileDetails({
                 )
               }
             />
-            <DetailField
-              label="Hobbies"
-              value={draft?.hobbies || ""}
-              maxLength={PROFILE_LIMITS.hobbies}
-              help={`${(draft?.hobbies || "").length}/${
-                PROFILE_LIMITS.hobbies
-              }`}
-              onChange={(e) =>
-                onEditField?.(
-                  "hobbies",
-                  applyLimit(e.target.value, PROFILE_LIMITS.hobbies)
-                )
-              }
+            <HobbiesSlots
+              value={Array.isArray(draft?.hobbies) ? draft.hobbies : []}
+              onChange={(arr) => onEditField?.("hobbies", arr)}
             />
           </div>
 
@@ -149,7 +139,9 @@ export default function ProfileDetails({
             value={profile.personality_type}
           />
           <DetailItem label="Nearest City" value={profile.nearest_city} />
-          <DetailItem label="Hobbies" value={profile.hobbies} />
+          <HobbiesList
+            items={Array.isArray(profile.hobbies) ? profile.hobbies : []}
+          />
           <DetailItem label="Member Since" value={formatDate(created_at)} />
         </div>
       )}
@@ -184,6 +176,62 @@ function DetailField({ label, value, onChange, maxLength, help }) {
           {help}
         </span>
       ) : null}
+    </div>
+  );
+}
+
+function HobbiesSlots({ value = [], onChange }) {
+  const arr = Array.isArray(value) ? value.slice(0, 4) : [];
+  while (arr.length < 4) arr.push("");
+  const updateAt = (i, v) => {
+    const next = arr.map((h, idx) => (idx === i ? (v || "").slice(0, 25) : h));
+    // Trim, filter empties, keep order of non-empty
+    const cleaned = next
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .slice(0, 4);
+    onChange?.(cleaned);
+  };
+  return (
+    <div className="profile-detail-item">
+      <span className="profile-detail-label">Hobbies (up to 4)</span>
+      <div className="profile-details-grid" style={{ gap: "0.6rem 0.8rem" }}>
+        {arr.map((h, i) => (
+          <input
+            key={i}
+            className="profile-detail-input"
+            value={h}
+            maxLength={25}
+            placeholder={`Hobby ${i + 1}`}
+            onChange={(e) => updateAt(i, e.target.value)}
+          />
+        ))}
+      </div>
+      <span
+        className="profile-detail-help"
+        style={{ fontSize: "0.75rem", color: "var(--color-muted)" }}
+      >
+        Each hobby ≤ 25 chars. Leave blank to remove.
+      </span>
+    </div>
+  );
+}
+
+function HobbiesList({ items = [] }) {
+  return (
+    <div className="profile-detail-item">
+      <span className="profile-detail-label">Hobbies</span>
+      {Array.isArray(items) && items.length ? (
+        <ul style={{ margin: 0, paddingLeft: "1.1rem" }}>
+          {items.map((h, idx) => (
+            <li key={idx} className="profile-detail-value">
+              {h}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <span className="profile-detail-value">—</span>
+      )}
     </div>
   );
 }

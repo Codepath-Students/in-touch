@@ -40,7 +40,7 @@ export default function ProfilePage() {
         bio: user?.bio || "",
         personality_type: user?.personality_type || "",
         nearest_city: user?.nearest_city || "",
-        hobbies: user?.hobbies || "",
+        hobbies: Array.isArray(user?.hobbies) ? user.hobbies : [],
         profile_picture_url: user?.profile_picture_url || "",
       });
     } catch (err) {
@@ -77,7 +77,7 @@ export default function ProfilePage() {
         bio: updated?.bio || "",
         personality_type: updated?.personality_type || "",
         nearest_city: updated?.nearest_city || "",
-        hobbies: updated?.hobbies || "",
+        hobbies: Array.isArray(updated?.hobbies) ? updated.hobbies : [],
         profile_picture_url: updated?.profile_picture_url || "",
       });
     } catch (err) {

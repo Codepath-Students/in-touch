@@ -20,13 +20,22 @@ export async function updateCurrentUser(patch = {}) {
       "bio",
       "personality_type",
       "nearest_city",
-      "hobbies",
+      "hobbies", // now array of strings
     ];
     const body = Object.fromEntries(
       Object.entries(patch).filter(
         ([k, v]) => allowed.includes(k) && v !== undefined
       )
     );
+    if (Array.isArray(body.hobbies)) {
+      // client-side sanitization: trim, remove empties, enforce limits
+      const cleaned = body.hobbies
+        .map((h) => (typeof h === "string" ? h.trim() : ""))
+        .filter((h) => h.length > 0)
+        .slice(0, 4)
+        .map((h) => (h.length > 25 ? h.slice(0, 25) : h));
+      body.hobbies = cleaned;
+    }
     const res = await api.put("/users", body);
     return res.data?.user;
   } catch (err) {
