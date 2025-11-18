@@ -12,6 +12,38 @@ const verifyTokenRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Login attempts limiter
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Signup limiter to deter abuse
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Password reset limiter
+const resetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// OAuth endpoints limiter
+const oauthLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 // Route for verifying access token
 AuthenticationRouter.post(
   "/verify-token",
@@ -35,18 +67,31 @@ AuthenticationRouter.post(
 );
 
 // Route for user login with email and password
-AuthenticationRouter.post("/login", AuthenticationController.loginWithEmail);
+AuthenticationRouter.post(
+  "/login",
+  loginLimiter,
+  AuthenticationController.loginWithEmail
+);
 
 // Route for user signup with email and password
-AuthenticationRouter.post("/signup", AuthenticationController.signup);
+AuthenticationRouter.post(
+  "/signup",
+  signupLimiter,
+  AuthenticationController.signup
+);
 
 // Google OAuth routes :
 // Route triggered when user clicks login/signup with Google
-AuthenticationRouter.get("/google", AuthenticationController.promptGoogle);
+AuthenticationRouter.get(
+  "/google",
+  oauthLimiter,
+  AuthenticationController.promptGoogle
+);
 
 // Route for handling Google OAuth callback
 AuthenticationRouter.get(
   "/google/callback",
+  oauthLimiter,
   AuthenticationController.handleGoogleCallback
 );
 
@@ -59,12 +104,14 @@ AuthenticationRouter.get("/verify-email", AuthenticationController.verifyEmail);
 // Route for initiating password reset
 AuthenticationRouter.post(
   "/reset-password",
+  resetLimiter,
   AuthenticationController.initiatePasswordReset
 );
 
 // Route for completing password reset
 AuthenticationRouter.post(
   "/reset-password/complete",
+  resetLimiter,
   AuthenticationController.completePasswordReset
 );
 

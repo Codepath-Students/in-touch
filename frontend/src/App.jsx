@@ -5,6 +5,7 @@ import LandingPage from "./pages/Landing-Page.jsx";
 import AuthModal from "./components/AuthModal.jsx";
 import CompleteProfile from "./pages/Complete-Profile.jsx";
 import ProfilePage from "./profile/Profile-Page.jsx";
+import { ensureCsrf } from "./services/api.js";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -16,6 +17,11 @@ function App() {
     setAuthMode(mode);
     setAuthOpen(true);
   };
+
+  // Fetch CSRF token early to avoid first-POST failures
+  useEffect(() => {
+    ensureCsrf();
+  }, []);
 
   // After Google callback, token and needsUsername may be in the URL
   const googleParams = useMemo(

@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { ensureCsrf } from "./api";
 
 /**
  * Sign up with email/password
@@ -7,6 +7,7 @@ import api from "./api";
  */
 export async function signup(payload) {
   try {
+    await ensureCsrf();
     const { username, name, email, password } = payload;
     const res = await api.post("/auth/signup", {
       username,
@@ -42,6 +43,7 @@ export async function signup(payload) {
  */
 export async function login(payload) {
   try {
+    await ensureCsrf();
     const { email, password } = payload;
     const res = await api.post("/auth/login", { email, password });
     return res.data; // { accessToken }
