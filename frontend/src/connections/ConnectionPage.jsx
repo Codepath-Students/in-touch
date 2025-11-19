@@ -1,3 +1,4 @@
+// src/ConnectionPage.jsx
 import React, { useEffect, useState } from "react";
 import "./ConnectionPage.css";
 import {
@@ -5,36 +6,60 @@ import {
   addConnection,
   updateConnection,
   deleteConnection,
-  markReachedOut
-} from "./services/ConnectionService";
+  markReachedOut,
+} from "./services/ConnectionBackendService";
 
 import ConnectionsHeader from "./components/ConnectionHeader";
 import ConnectionsGrid from "./components/ConnectionGrid";
-import ConnectionDetailModal from "./components/ConnectionDetailModal";
 import ConnectionFormModal from "./components/ConnectionFormModal";
+import { useNavigate } from "react-router-dom";
+// If you want the same error UI as profile:
+// import ErrorBox from "../components/ErrorBox";
 
 const ConnectionsPage = () => {
   const [connections, setConnections] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // start true, like ProfilePage
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(""); // string instead of null
 
-  const [detailConnection, setDetailConnection] = useState(null);
   const [editingConnection, setEditingConnection] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  
+  const navigate = useNavigate();
 
-  // Move loadData outside useEffect so it can be reused
+  // Centralized loader, similar to loadProfile()
   const loadData = async () => {
     setLoading(true);
-    setError(null);
+    setError("");
+
+    // Fast-fail: no token
+    try {
+      const hasToken = Boolean(window?.localStorage?.getItem("access_token"));
+      if (!hasToken) {
+        setError("You must be logged in to view this page.");
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // ignore token read errors, still try request
+    }
+
     try {
       const res = await fetchConnections();
       setConnections(res || []);
     } catch (err) {
-      setError(err.message || "Something went wrong loading connections.");
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError("You must be logged in to view this page.");
+      } else {
+        setError(
+          err?.response?.data?.error ||
+            err?.response?.data?.message ||
+            err?.message ||
+            "Something went wrong loading connections."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -65,55 +90,71 @@ const ConnectionsPage = () => {
 
   const handleFormSubmit = async (data) => {
     setSaving(true);
-    setError(null);
+    setError("");
     try {
       if (editingConnection) {
-        await updateConnection(editingConnection.connectionId, data);
+        await updateConnection(editingConnection.id, data);
       } else {
         await addConnection(data);
       }
       await loadData();
       handleFormClose();
     } catch (err) {
-      setError(err.message || "Failed to save connection.");
+      setError(
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to save connection."
+      );
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (connection) => {
-    if (!window.confirm(`Delete connection "${connection.name}"?`)) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await deleteConnection(connection.connectionId);
-      await loadData();
-    } catch (err) {
-      setError(err.message || "Failed to delete connection.");
-    } finally {
-      setSaving(false);
-    }
-  };
+ const handleDelete = async (connection) => {
+  setSaving(true);
+  setError("");
+
+  try {
+    await deleteConnection(connection.id); // backend expects connection.id
+    await loadData();
+  } catch (err) {
+    setError(
+      err?.response?.data?.error ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to delete connection."
+    );
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const handleReachedOut = async (connection) => {
     setSaving(true);
-    setError(null);
+    setError("");
     try {
-      await markReachedOut(connection.connectionId);
+      await markReachedOut(connection.id);
+      console.log("connectionID:", connection.id);
       await loadData();
     } catch (err) {
-      setError(err.message || "Failed to mark as reached out.");
+      setError(
+        err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Failed to mark as reached out."
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  // ✅ Route to dynamic details page instead of opening modal
   const handleOpenDetail = (connection) => {
-    setDetailConnection(connection);
-  };
-
-  const handleCloseDetail = () => {
-    setDetailConnection(null);
+    navigate(`/connections/${connection.id}`, {
+      state: { connection },
+    });
   };
 
   // Filter connections based on search (case-insensitive, on name and email)
@@ -129,14 +170,14 @@ const ConnectionsPage = () => {
   return (
     <div className="connections-page">
       <div className="connections-page-inner">
-        <ConnectionsHeader
-          search={search}
-          onSearchChange={handleSearchChange}
-          onAddClick={handleAddClick}
-          loading={loading}
-          saving={saving}
-        />
+        <header className="connections-page-header">
+          <h1 className="connections-page-title">Connections</h1>
+          <p className="connections-page-subtitle">
+            View and manage all your connections here.
+          </p>
+        </header>
 
+        {/* If you want to use ErrorBox like ProfilePage, swap this block */}
         {error && (
           <div className="connections-error card">
             <div className="connections-error-header">Something went wrong</div>
@@ -144,36 +185,47 @@ const ConnectionsPage = () => {
             <button
               type="button"
               className="btn btn-ghost"
-              onClick={() => loadData()}
+              onClick={() => {
+                if (error.includes("logged in")) {
+                  navigate("/"); // or /login if you have it
+                } else {
+                  loadData();
+                }
+              }}
             >
-              Retry
+              {error.includes("logged in") ? "Go home" : "Retry"}
             </button>
           </div>
         )}
 
-        <ConnectionsGrid
-          connections={filteredConnections}
-          loading={loading}
-          onDelete={handleDelete}
-          onReachedOut={handleReachedOut}
-          onOpenDetail={handleOpenDetail}
-          onEdit={handleEditClick}
-        />
+        {!error && (
+          <>
+            <ConnectionsHeader
+              search={search}
+              onSearchChange={handleSearchChange}
+              onAddClick={handleAddClick}
+              loading={loading}
+              saving={saving}
+            />
 
-        {detailConnection && (
-          <ConnectionDetailModal
-            connection={detailConnection}
-            onClose={handleCloseDetail}
-          />
-        )}
+            <ConnectionsGrid
+              connections={connections}
+              loading={loading}
+              onDelete={handleDelete}
+              onReachedOut={handleReachedOut}
+              onOpenDetail={handleOpenDetail}
+              onEdit={handleEditClick}
+            />
 
-        {isFormOpen && (
-          <ConnectionFormModal
-            connection={editingConnection}
-            onClose={handleFormClose}
-            onSubmit={handleFormSubmit}
-            saving={saving}
-          />
+            {isFormOpen && (
+              <ConnectionFormModal
+                connection={editingConnection}
+                onClose={handleFormClose}
+                onSubmit={handleFormSubmit}
+                saving={saving}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

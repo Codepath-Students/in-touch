@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from "react";
 import "./ConnectionFormModal.css";
 
-// Valid values (aligned with ERD constraints)
+// Valid values (aligned with ERD constraints / backend)
 const CONNECTION_TYPES = [
   { value: "", label: "Not set" },
   { value: "close_friend", label: "Close friend" },
   { value: "family_member", label: "Family member" },
   { value: "friend", label: "Friend" },
-  { value: "acquaintance", label: "Acquaintance" }
+  { value: "acquaintance", label: "Acquaintance" },
 ];
 
 const ConnectionFormModal = ({ connection, onClose, onSubmit, saving }) => {
@@ -17,25 +17,42 @@ const ConnectionFormModal = ({ connection, onClose, onSubmit, saving }) => {
   const [name, setName] = useState("");
   const [connectionType, setConnectionType] = useState("");
   const [reminderFrequency, setReminderFrequency] = useState("");
-  // Remove status state
+  const [priority, setPriority] = useState(""); // reach_out_priority 0..10
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
     if (connection) {
-      setName(connection.name || "");
-      setConnectionType(connection.connectionType || "");
+      // Be defensive: support both old FE shape and new BE shape
+      setName(
+        connection.connection_name ??
+          connection.name ??
+          ""
+      );
+      setConnectionType(
+        connection.connection_type ??
+          connection.connectionType ??
+          ""
+      );
       setReminderFrequency(
-        connection.reminderFrequency != null
+        connection.reminder_frequency_days != null
+          ? String(connection.reminder_frequency_days)
+          : connection.reminderFrequency != null
           ? String(connection.reminderFrequency)
           : ""
       );
-      // Remove status
+      setPriority(
+        connection.reach_out_priority != null
+          ? String(connection.reach_out_priority)
+          : connection.reachOutPriority != null
+          ? String(connection.reachOutPriority)
+          : ""
+      );
       setNotes(connection.notes || "");
     } else {
       setName("");
       setConnectionType("");
       setReminderFrequency("");
-      // Remove status
+      setPriority("");
       setNotes("");
     }
   }, [connection]);
@@ -43,13 +60,34 @@ const ConnectionFormModal = ({ connection, onClose, onSubmit, saving }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const trimmedName = name.trim();
+    const trimmedNotes = notes.trim();
+
+    // Frontend guards to avoid obvious 400s
+    if (!trimmedName) {
+      alert("Name is required");
+      return;
+    }
+    if (!reminderFrequency) {
+      alert("Reminder frequency (days) is required");
+      return;
+    }
+
+    const freqNum = Number(reminderFrequency);
+    const priorityNum =
+      priority === "" ? null : Number(priority);
+
     const payload = {
-      name: name.trim(), // for display, backend may map to UserTo
-      connectionType: connectionType || null,
-      reminderFrequency:
-        reminderFrequency === "" ? null : Number(reminderFrequency),
-      status: "connected", // Always set to connected
-      notes: notes.trim()
+      // 🔥 Match backend expectations exactly
+      connection_name: trimmedName,
+      connection_type: connectionType || "acquaintance", // backend expects string; default if blank
+      reminder_frequency_days: freqNum,
+      notes: trimmedNotes,
+      know_from: "", // optional; backend COALESCEs to '' in INSERT
+      reach_out_priority:
+        priorityNum == null || Number.isNaN(priorityNum)
+          ? 0
+          : priorityNum,
     };
 
     onSubmit(payload);
@@ -110,14 +148,31 @@ const ConnectionFormModal = ({ connection, onClose, onSubmit, saving }) => {
             <input
               id="connection-reminder"
               type="number"
-              min="0"
+              min="1"
+              required
               value={reminderFrequency}
               onChange={(e) => setReminderFrequency(e.target.value)}
               placeholder="e.g. 30"
             />
           </div>
 
-          {/* Status field removed */}
+          <div className="connection-form-field">
+            <label htmlFor="connection-priority">
+              Reach out priority (0–10)
+              <span className="helper">
+                Higher means more important to keep in touch.
+              </span>
+            </label>
+            <input
+              id="connection-priority"
+              type="number"
+              min="0"
+              max="10"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              placeholder="e.g. 5"
+            />
+          </div>
 
           <div className="connection-form-field">
             <label htmlFor="connection-notes">Notes</label>

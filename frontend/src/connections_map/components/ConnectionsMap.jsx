@@ -2,6 +2,28 @@
 import React, { useMemo } from "react";
 import "./ConnectionsMap.css";
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const computeDaysSinceLastContact = (c) => {
+  const lastContactedRaw =
+    c.last_contacted_at ??
+    c.lastContactedAt ??
+    c.created_at ??
+    c.createdAt;
+
+  if (!lastContactedRaw) return null;
+
+  const lastDate = new Date(lastContactedRaw);
+  if (Number.isNaN(lastDate.getTime())) return null;
+
+  const today = new Date();
+  lastDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const diffMs = today - lastDate;
+  return Math.floor(diffMs / MS_PER_DAY);
+};
+
 /**
  * Compute ring bucket from daysSinceLastContact:
  * - ring 0 (inner): recently contacted
@@ -9,7 +31,7 @@ import "./ConnectionsMap.css";
  * - ring 2 (outer): stale / red
  */
 const getRingIndex = (connection, recentDays, staleDays) => {
-  const days = connection.daysSinceLastContact;
+  const days = computeDaysSinceLastContact(connection);
 
   if (days == null) {
     // If unknown, treat as middle.
@@ -21,14 +43,16 @@ const getRingIndex = (connection, recentDays, staleDays) => {
   return 1;
 };
 
+const getDisplayName = (c) =>
+  c.connection_name ?? c.name ?? "Connection";
+
 const ConnectionsMap = ({
   connections,
   loading,
   recentDays,
   staleDays,
-  onNodeClick
-    }) => {
-        console.log(connections);
+  onNodeClick,
+}) => {
   const rings = useMemo(() => {
     const groups = { 0: [], 1: [], 2: [] };
 
@@ -41,7 +65,6 @@ const ConnectionsMap = ({
   }, [connections, recentDays, staleDays]);
 
   const hasConnections = connections && connections.length > 0;
-  console.log(connections);
 
   return (
     <section className="connections-map-section">
@@ -71,7 +94,7 @@ const ConnectionsMap = ({
               const x = 50 + Math.cos(angle) * radiusFactor * 100;
               const y = 50 + Math.sin(angle) * radiusFactor * 100;
 
-              const days = connection.daysSinceLastContact;
+              const days = computeDaysSinceLastContact(connection);
               const isRecent =
                 days != null && days <= recentDays;
               const isStale =
@@ -81,7 +104,7 @@ const ConnectionsMap = ({
                 "orbit-node",
                 `orbit-node-ring-${ringIndex}`,
                 isRecent ? "orbit-node-recent" : "",
-                isStale ? "orbit-node-stale" : ""
+                isStale ? "orbit-node-stale" : "",
               ]
                 .filter(Boolean)
                 .join(" ");
@@ -90,17 +113,15 @@ const ConnectionsMap = ({
                 if (onNodeClick) onNodeClick(connection);
               };
 
-              const label =
-                connection.name ||
-                connection.connectionType ||
-                "Connection";
-
+              const label = getDisplayName(connection);
               const initial =
-                connection.name?.[0]?.toUpperCase() || "?";
+                (connection.connection_name ??
+                  connection.name ??
+                  "?")[0]?.toUpperCase() || "?";
 
               return (
                 <button
-                  key={connection.connectionId}
+                  key={connection.id ?? connection.connectionId}
                   type="button"
                   className={classNames}
                   style={{ left: `${x}%`, top: `${y}%` }}
