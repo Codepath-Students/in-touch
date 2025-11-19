@@ -7,6 +7,10 @@ import CompleteProfile from "./pages/Complete-Profile.jsx";
 import ProfilePage from "./profile/Profile-Page.jsx";
 import { ensureCsrf, setAccessToken } from "./services/api.js";
 import NavBar from "./components/NavBar.jsx";
+import Connections from "./connections/ConnectionPage.jsx";
+import ConnectionsMap from "./connections_map/ConnectionsMapPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import ConnectionDetailPage from "./connections/ConnectionDetailPage.jsx";
 
 function App() {
   const [authOpen, setAuthOpen] = useState(false);
@@ -54,7 +58,11 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage onAuth={openAuth} />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route path="/connections" element={<Connections />} />
+        <Route path="/connections/map" element={<ConnectionsMap />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/connections/:id" element={<ConnectionDetailPage />} />
       </Routes>
       <AuthModal
         open={authOpen}
