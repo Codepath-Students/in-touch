@@ -30,15 +30,18 @@ Backend: Express
 
 [gif goes here]
 
-### [Signup/Landing Page]
+### [Signup/Landing Page/Login Modal]
 
-[There is login authentication for a user]
+[There is signup modal for the user that allows the user to sign up with google from the landing page]
 
 <img src="./gifs/signup.gif" alt="Signup/Landing Page Gif" />
 
 ### [Login Flow]
 
-[Continuation of above feature. The user can login with there credentials and access there account.]
+[Continuation of above feature. The user can login with there credentials and access there account. Will also show logout to show the same account is preserved]
+
+<img src="./gifs/login.gif" alt="Login Flow Gif" />
+
 
 ### [Profile Updates]
 
