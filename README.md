@@ -30,23 +30,24 @@ Backend: Express
 
 [gif goes here]
 
-### [Login]
+### [Signup/Landing Page]
 
 [There is login authentication for a user]
 
-[gif goes here]
+<img src="./gifs/signup.gif" alt="Signup/Landing Page Gif" />
+
+### [Login Flow]
+
+[Continuation of above feature. The user can login with there credentials and access there account.]
 
 ### [Profile Updates]
 
 [User's can update their profile to reflect their personality and any other relevant information]
 
-[gif goes here]
 
-### [Sign up]
+### [Graceful Error Handling]
 
-[User can sign up for a new account]
-
-[gif goes here]
+[The application gracefully handles errors and provides user-friendly messages.]
 
 ### [Connection Map]
 
@@ -66,10 +67,6 @@ Backend: Express
 
 [gif goes here]
 
-### [Landing Page]
-
-[There is a landing page for the website, from which the login/signup can be done]
-[gif goes here]
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ## Installation Instructions
