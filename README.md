@@ -53,6 +53,8 @@ Backend: Express
 
 [The application gracefully handles errors and provides user-friendly messages.]
 
+<img src="./gifs/error-handling.gif" alt="Error Handling Gif" />
+
 ### [Connection Map]
 
 [User can see all there connection in a map like page, each user represented uniquely]
