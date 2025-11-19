@@ -1,6 +1,8 @@
 import pool from "../config/database.js";
 
 const ConnectionsController = {
+  // 🔴 OLD IMPLEMENTATION (WITH PAGINATION) - kept for reference
+  /*
   // get connections for a user with pagination
   getConnections: async (req, res) => {
     const userId = req.userId;
@@ -24,6 +26,30 @@ const ConnectionsController = {
       const hasNext = rows.length > pageSize;
       const connections = hasNext ? rows.slice(0, pageSize) : rows;
       return res.status(200).json({ connections, page, hasNext });
+    } catch (err) {
+      console.error("Error fetching connections:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+  */
+
+  // ✅ NEW IMPLEMENTATION: get ALL connections for a user (no pagination)
+  getConnections: async (req, res) => {
+    const userId = req.userId;
+
+    try {
+      const query = `
+        SELECT id, connection_name, reach_out_priority, reminder_frequency_days, created_at, last_contacted_at
+        FROM connections
+        WHERE user_id = $1
+        ORDER BY 
+          (reach_out_priority * 0.5) + 
+          (0.5 * (EXTRACT(EPOCH FROM (NOW() - COALESCE(last_contacted_at, created_at)))/86400 - reminder_frequency_days)) DESC,
+          connection_name ASC
+      `;
+      const { rows } = await pool.query(query, [userId]);
+      // No page / hasNext anymore — just return all connections
+      return res.status(200).json({ connections: rows });
     } catch (err) {
       console.error("Error fetching connections:", err);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -258,6 +284,36 @@ const ConnectionsController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
+
+  // mark a connection as "reached out" (update last_contacted_at to NOW)
+markReachedOut: async (req, res) => {
+  const userId = req.userId;
+  const connectionId = parseInt(req.params.connectionId, 10);
+
+  if (!Number.isInteger(connectionId)) {
+    return res.status(400).json({ error: "Invalid connectionId" });
+  }
+
+  try {
+    const query = `
+      UPDATE connections
+      SET last_contacted_at = NOW()
+      WHERE id = $1 AND user_id = $2
+      RETURNING id, connection_name, reach_out_priority, reminder_frequency_days, created_at, last_contacted_at
+    `;
+    const { rows } = await pool.query(query, [connectionId, userId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Connection not found" });
+    }
+
+    return res.status(200).json({ connection: rows[0] });
+  } catch (err) {
+    console.error("Error marking connection reached out:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+},
+
 };
 
 export default ConnectionsController;

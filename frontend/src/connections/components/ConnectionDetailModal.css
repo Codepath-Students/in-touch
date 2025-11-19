@@ -63,3 +63,18 @@
   font-size: 0.94rem;
   line-height: 1.5;
 }
+
+.connection-detail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.back-btn {
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  text-decoration: underline;
+}

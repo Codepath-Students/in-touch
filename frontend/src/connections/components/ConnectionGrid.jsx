@@ -37,7 +37,7 @@ const ConnectionsGrid = ({
           <div className="connections-grid-inner">
             {connections.map((connection) => (
               <ConnectionCard
-                key={connection.connectionId}
+                key={connection.id}
                 connection={connection}
                 onDelete={() => onDelete(connection)}
                 onReachedOut={() => onReachedOut(connection)}

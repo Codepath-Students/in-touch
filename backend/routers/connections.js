@@ -19,14 +19,14 @@ ConnectionsRouter.use(requireAccessToken);
 
 //Note that for a given request we should be able to get the user ID from req.user.id because of the requireAccessToken middleware
 
-// Route to get 50 connections for the authenticated user (on the page number provided -- connections are ranked by reachout_priority and ((current_time - last_contacted_at) - reminder frequency)) then ordered by alphabetical within those groups --- Note that this route does not need to get all of a connection's details, just id,  connection_name, reachout_priority, reminder_frequency, created_at, and last_contacted_at
-ConnectionsRouter.get('/page/:page', ConnectionsController.getConnections);
+// Route to get all connections for the authenticated user
+ConnectionsRouter.get('/', ConnectionsController.getConnections);
 
 //Route to create a new connection for the authenticated user
-ConnectionsRouter.post('/', ConnectionsController.createConnection);
+ConnectionsRouter.post('/create', ConnectionsController.createConnection);
 
 //Route to update an existing connection for the authenticated user
-ConnectionsRouter.put('/:connectionId(\\d+)', ConnectionsController.updateConnection);
+ConnectionsRouter.put('/edit/:connectionId(\\d+)', ConnectionsController.updateConnection);
 
 //Route to delete a connection for the authenticated user
 ConnectionsRouter.delete('/:connectionId(\\d+)', ConnectionsController.deleteConnection);
@@ -36,6 +36,9 @@ ConnectionsRouter.get('/id/:connectionId', ConnectionsController.getConnectionDe
 
 //Route to search connections by connection_name for the authenticated user - not page specific, just return all matching connections
 ConnectionsRouter.get('/search/:query', ConnectionsController.searchConnections);
+
+ConnectionsRouter.post("/:connectionId/reached-out",ConnectionsController.markReachedOut);
+
 
 
 

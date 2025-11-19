@@ -1,4 +1,4 @@
-// src/components/connections/ConnectionsMap.jsx
+// src/components/connections/ConnectionMapLine.jsx
 import React, { useMemo } from "react";
 import "./ConnectionMapLine.css";
 
@@ -11,6 +11,8 @@ const MAX_DAYS = 90; // anything above this is treated as "max distance"
 const MIN_RADIUS_PCT = 20; // nearest possible distance from center (percent of container)
 const MAX_RADIUS_PCT = 42; // farthest possible distance from center
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
 const getRadiusPctFromDays = (days) => {
   if (days == null) {
     // unknown → middle distance
@@ -22,32 +24,44 @@ const getRadiusPctFromDays = (days) => {
   return MIN_RADIUS_PCT + t * (MAX_RADIUS_PCT - MIN_RADIUS_PCT);
 };
 
+const computeDaysSinceLastContact = (c) => {
+  const lastContactedRaw =
+    c.last_contacted_at ??
+    c.lastContactedAt ??
+    c.created_at ??
+    c.createdAt;
+
+  if (!lastContactedRaw) return null;
+
+  const lastDate = new Date(lastContactedRaw);
+  if (Number.isNaN(lastDate.getTime())) return null;
+
+  const today = new Date();
+  lastDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  const diffMs = today - lastDate;
+  const days = Math.floor(diffMs / MS_PER_DAY);
+  return days;
+};
+
+const getDisplayName = (c) =>
+  c.connection_name ?? c.name ?? "Connection";
+
 const ConnectionsMapLine = ({
   connections,
   loading,
   recentDays,
   staleDays,
-  onNodeClick
+  onNodeClick,
 }) => {
   const processed = useMemo(() => {
     const count = Math.max(connections.length, 1);
 
     return connections.map((c, idx) => {
       const angle = (idx / count) * Math.PI * 2; // even spacing around 360°
-        // Calculate days since lastReachedOut (if available)
-        let days = null;
-        if (c.lastReachedOut) {
-        const lastDate = new Date(c.lastReachedOut);
-        const today = new Date();
-        // Zero out time for accurate day diff
-        lastDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-        const diffMs = today - lastDate;
-        days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        console.log(`Connection ${c.name} last contacted ${days} days ago.`);
-        console.log(lastDate,today);
-        }
-        
+
+      const days = computeDaysSinceLastContact(c);
       const radiusPct = getRadiusPctFromDays(days);
 
       // Position in percentage space (center at 50%,50%)
@@ -60,7 +74,7 @@ const ConnectionsMapLine = ({
         days,
         radiusPct,
         x,
-        y
+        y,
       };
     });
   }, [connections]);
@@ -85,7 +99,7 @@ const ConnectionsMapLine = ({
             const nodeClassNames = [
               "map-node",
               isRecent ? "map-node-recent" : "",
-              isStale ? "map-node-stale" : ""
+              isStale ? "map-node-stale" : "",
             ]
               .filter(Boolean)
               .join(" ");
@@ -93,7 +107,7 @@ const ConnectionsMapLine = ({
             const lineClassNames = [
               "map-line",
               isRecent ? "map-line-recent" : "",
-              isStale ? "map-line-stale" : ""
+              isStale ? "map-line-stale" : "",
             ]
               .filter(Boolean)
               .join(" ");
@@ -102,24 +116,24 @@ const ConnectionsMapLine = ({
               if (onNodeClick) onNodeClick(connection);
             };
 
-            const label =
-              connection.name || connection.connectionType || "Connection";
+            const label = getDisplayName(connection);
 
             const initial =
-              connection.name?.[0]?.toUpperCase() || "?";
+              (connection.connection_name ??
+                connection.name ??
+                "?")[0]?.toUpperCase() || "?";
 
             return (
-              <React.Fragment key={connection.connectionId}>
+              <React.Fragment key={connection.id ?? connection.connectionId}>
                 {/* Line from center → node */}
                 <div
                   className={lineClassNames}
                   style={{
-                    // line starts at center (50%, 50%) and extends outward
                     left: "50%",
                     top: "50%",
                     width: `${radiusPct}%`,
                     transform: `rotate(${angle}rad) translateY(-50%)`,
-                    transformOrigin: "0 50%"
+                    transformOrigin: "0 50%",
                   }}
                   aria-hidden="true"
                 />

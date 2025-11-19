@@ -2,6 +2,35 @@
 import React from "react";
 import "./ConnectionCard.css";
 
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const computeDaysUntilReachout = (connection) => {
+  const reminderFreq =
+    connection.reminder_frequency_days ??
+    connection.reminderFrequency;
+
+  if (!reminderFreq || reminderFreq <= 0) return null;
+
+  const lastContactedRaw =
+    connection.last_contacted_at ??
+    connection.lastContactedAt ??
+    connection.created_at ??
+    connection.createdAt;
+
+  if (!lastContactedRaw) return null;
+
+  const lastContacted = new Date(lastContactedRaw);
+  if (Number.isNaN(lastContacted.getTime())) return null;
+
+  const now = new Date();
+  const daysSinceLast =
+    (now.getTime() - lastContacted.getTime()) / MS_PER_DAY;
+
+  // Positive when we still have time, negative/zero when due/overdue
+  const daysUntil = Math.round(reminderFreq - daysSinceLast);
+  return daysUntil;
+};
+
 const formatReachoutLabel = (daysUntilReachout) => {
   if (daysUntilReachout == null) return "Reach out soon";
   if (daysUntilReachout <= 0) return "Reach out now";
@@ -11,7 +40,7 @@ const formatReachoutLabel = (daysUntilReachout) => {
 
 const formatConnectionType = (connectionType) => {
   if (!connectionType) return "Not set";
-  return connectionType.replace("_", " "); // "close_friend" → "close friend"
+  return connectionType.replace(/_/g, " "); // "close_friend" → "close friend"
 };
 
 const ConnectionCard = ({
@@ -19,24 +48,45 @@ const ConnectionCard = ({
   onDelete,
   onReachedOut,
   onOpenDetail,
-  onEdit
+  onEdit,
 }) => {
+  // Normalized fields from DB (with backward-compat for old shape)
+  const name =
+    connection.connection_name ??
+    connection.name ??
+    "Unknown";
+
+  const connectionTypeRaw =
+    connection.connection_type ??
+    connection.connectionType ??
+    "";
+
+  const reminderFrequency =
+    connection.reminder_frequency_days ??
+    connection.reminderFrequency ??
+    null;
+
+  const reachOutPriority =
+    connection.reach_out_priority ??
+    connection.reachOutPriority ??
+    0;
+
+  const daysUntilReachout = computeDaysUntilReachout(connection);
   const isDueNow =
-    connection.daysUntilReachout != null &&
-    connection.daysUntilReachout <= 0;
+    daysUntilReachout != null && daysUntilReachout <= 0;
 
   return (
     <article className="connection-card">
       <div className="connection-card-main">
         <div className="connection-card-name-row">
           <div className="connection-card-avatar">
-            {connection.name?.[0]?.toUpperCase() || "?"}
+            {name?.[0]?.toUpperCase() || "?"}
           </div>
           <div>
-            <h3 className="connection-card-name">{connection.name}</h3>
-            <p className="connection-card-title">
-              {formatConnectionType(connection.connectionType)}
-            </p>
+            <h3 className="connection-card-name">{name}</h3>
+            {/* <p className="connection-card-title">
+              {formatConnectionType(connectionTypeRaw)}
+            </p> */}
           </div>
         </div>
 
@@ -47,10 +97,15 @@ const ConnectionCard = ({
               (isDueNow ? " connection-card-reachout-now" : "")
             }
           >
-            {formatReachoutLabel(connection.daysUntilReachout)}
+            {formatReachoutLabel(daysUntilReachout)}
           </span>
           <span className="connection-card-submeta">
-            Status: {connection.status}
+            Every{" "}
+            {reminderFrequency != null
+              ? `${reminderFrequency} days`
+              : "—"}
+            {" • "}
+            Priority {reachOutPriority}
           </span>
         </div>
       </div>
@@ -66,14 +121,14 @@ const ConnectionCard = ({
         <button
           type="button"
           className="btn btn-ghost connection-card-btn"
-          onClick={onOpenDetail}
+          onClick={() => onOpenDetail(connection)}
         >
           Details
         </button>
         <button
           type="button"
           className="btn btn-ghost connection-card-btn"
-          onClick={onEdit}
+          onClick={() => onEdit(connection)}
         >
           Edit
         </button>
