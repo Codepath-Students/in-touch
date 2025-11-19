@@ -1,20 +1,21 @@
 // src/components/profile/ProfileBio.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./ProfileBio.css";
+import { PROFILE_LIMITS, applyLimit } from "../../utils/profileLimits";
 
-export default function ProfileBio({ profile, loading, saving, onSaveBio }) {
+export default function ProfileBio({
+  profile,
+  bioValue,
+  onEditField,
+  loading,
+  saving,
+  onSave,
+}) {
   const [editMode, setEditMode] = useState(false);
-  const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    if (profile && !editMode) {
-      setDraft(profile.bio || "");
-    }
-  }, [profile, editMode]);
 
   const handleSaveClick = () => {
     if (!profile) return;
-    onSaveBio(draft);
+    onSave?.();
     setEditMode(false);
   };
 
@@ -44,9 +45,18 @@ export default function ProfileBio({ profile, loading, saving, onSaveBio }) {
           <textarea
             className="profile-bio-textarea"
             rows={4}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            maxLength={PROFILE_LIMITS.bio}
+            value={bioValue}
+            onChange={(e) =>
+              onEditField?.(
+                "bio",
+                applyLimit(e.target.value, PROFILE_LIMITS.bio)
+              )
+            }
           />
+          <div className="profile-bio-loading" style={{ textAlign: "right" }}>
+            {(bioValue || "").length}/{PROFILE_LIMITS.bio}
+          </div>
           <div className="profile-bio-actions">
             <button
               type="button"

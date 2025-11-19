@@ -30,23 +30,30 @@ Backend: Express
 
 [gif goes here]
 
-### [Login]
+### [Signup/Landing Page/Login Modal]
 
-[There is login authentication for a user]
+[There is signup modal for the user that allows the user to sign up with google from the landing page]
 
-[gif goes here]
+<img src="./gifs/signup.gif" alt="Signup/Landing Page Gif" />
+
+### [Login Flow]
+
+[Continuation of above feature. The user can login with there credentials and access there account. Will also show logout to show the same account is preserved]
+
+<img src="./gifs/login.gif" alt="Login Flow Gif" />
+
 
 ### [Profile Updates]
 
-[User's can update their profile to reflect their personality and any other relevant information]
+[User's can update their profile to reflect their personality and any other relevant information. Profile updates persist across sessions]
 
-[gif goes here]
+<img src="./gifs/profile-updates.gif" alt="Profile Updates Gif" />
 
-### [Sign up]
+### [Graceful Error Handling]
 
-[User can sign up for a new account]
+[The application gracefully handles errors and provides user-friendly messages.]
 
-[gif goes here]
+<img src="./gifs/error-handling.gif" alt="Error Handling Gif" />
 
 ### [Connection Map]
 
@@ -66,10 +73,6 @@ Backend: Express
 
 [gif goes here]
 
-### [Landing Page]
-
-[There is a landing page for the website, from which the login/signup can be done]
-[gif goes here]
 ### [ADDITIONAL FEATURES GO HERE - ADD ALL FEATURES HERE IN THE FORMAT ABOVE; you will check these off and add gifs as you complete them]
 
 ## Installation Instructions

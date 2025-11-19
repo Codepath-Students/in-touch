@@ -1,19 +1,19 @@
 /* src/styles/ProfileHeader.css */
 
 .profile-header-card {
-  padding: 2.25rem 1.75rem;
+  padding: 2.75rem 2.25rem;
   border-radius: var(--radius-2xl);
   background: rgba(15, 23, 42, 0.96);
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .profile-header-avatar-ring {
-  width: 210px;
-  height: 210px;
+  width: 244px;
+  height: 244px;
   border-radius: 999px;
   padding: 6px;
   background: conic-gradient(
@@ -43,7 +43,7 @@
 }
 
 .profile-header-initials {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
   letter-spacing: 0.06em;
 }
@@ -53,13 +53,13 @@
 }
 
 .profile-header-name {
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   font-weight: 900;
   letter-spacing: 0.03em;
 }
 
 .profile-header-tagline {
-  margin-top: 0.25rem;
-  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-size: 1rem;
   color: var(--color-muted);
 }
