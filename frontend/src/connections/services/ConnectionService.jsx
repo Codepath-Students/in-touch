@@ -43,7 +43,7 @@ export async function addConnection(payload) {
   if (MOCK) {
     const newConnection = {
       connectionId: Date.now(),
-      userId: payload.userId ?? Math.floor(Math.random() * 100000),
+      userId: payload.userId ?? window.crypto.getRandomValues(new Uint32Array(1))[0],
       name: payload.name || "New Connection",
       status: payload.status || "connected",
       connectionType: payload.connectionType || null,
