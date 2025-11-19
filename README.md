@@ -45,8 +45,9 @@ Backend: Express
 
 ### [Profile Updates]
 
-[User's can update their profile to reflect their personality and any other relevant information]
+[User's can update their profile to reflect their personality and any other relevant information. Profile updates persist across sessions]
 
+<img src="./gifs/profile-updates.gif" alt="Profile Updates Gif" />
 
 ### [Graceful Error Handling]
 
