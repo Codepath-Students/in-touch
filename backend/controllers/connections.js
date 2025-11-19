@@ -57,73 +57,115 @@ const ConnectionsController = {
   },
 
   // create a new connection for the authenticated user
-  createConnection: async (req, res) => {
-    const userId = req.userId;
-    const {
-      connection_name,
-      reach_out_priority,
-      reminder_frequency_days,
-      notes,
-      connection_type,
-      know_from,
-    } = req.body || {};
+ // create a new connection for the authenticated user
+createConnection: async (req, res) => {
+  const userId = req.userId;
+  const {
+    connection_name,
+    reach_out_priority,
+    reminder_frequency_days,
+    notes,
+    connection_type,
+    know_from,
+    last_contacted_at, // ✅ NEW: optional incoming field
+  } = req.body || {};
 
-    // Basic validation (align with DB constraints)
-    if (
-      !connection_name ||
-      typeof connection_name !== "string" ||
-      connection_name.length > 100
-    ) {
-      return res
-        .status(400)
-        .json({ error: "Invalid connection_name (required, max 100 chars)" });
-    }
-    const freq = parseInt(reminder_frequency_days, 10);
-    if (!Number.isInteger(freq) || freq <= 0) {
-      return res.status(400).json({
-        error: "Invalid reminder_frequency_days (must be integer > 0)",
-      });
-    }
-    const priority = parseInt(reach_out_priority ?? 0, 10);
-    if (!Number.isInteger(priority) || priority < 0 || priority > 10) {
-      return res
-        .status(400)
-        .json({ error: "Invalid reach_out_priority (0..10)" });
-    }
-    if (typeof connection_type !== "string" || connection_type.length > 50) {
-      return res
-        .status(400)
-        .json({ error: "Invalid connection_type (max 50 chars)" });
-    }
-    if (typeof know_from !== "string" || know_from.length > 255) {
-      return res
-        .status(400)
-        .json({ error: "Invalid know_from (max 255 chars)" });
-    }
+  // Basic validation (align with DB constraints)
+  if (
+    !connection_name ||
+    typeof connection_name !== "string" ||
+    connection_name.length > 100
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Invalid connection_name (required, max 100 chars)" });
+  }
 
-    try {
-      const query = `
-        INSERT INTO connections (
-          user_id, connection_name, reminder_frequency_days, notes, connection_type, know_from, reach_out_priority
-        )
-        VALUES ($1, $2, $3, COALESCE($4, ''), COALESCE($5, 'acquaintance'), COALESCE($6, ''), COALESCE($7, 0))
-        RETURNING id, connection_name, reach_out_priority, reminder_frequency_days, created_at, last_contacted_at
-      `;
-      const { rows } = await pool.query(query, [
-        userId,
+  const freq = parseInt(reminder_frequency_days, 10);
+  if (!Number.isInteger(freq) || freq <= 0) {
+    return res.status(400).json({
+      error: "Invalid reminder_frequency_days (must be integer > 0)",
+    });
+  }
+
+  const priority = parseInt(reach_out_priority ?? 0, 10);
+  if (!Number.isInteger(priority) || priority < 0 || priority > 10) {
+    return res
+      .status(400)
+      .json({ error: "Invalid reach_out_priority (0..10)" });
+  }
+
+  if (typeof connection_type !== "string" || connection_type.length > 50) {
+    return res
+      .status(400)
+      .json({ error: "Invalid connection_type (max 50 chars)" });
+  }
+
+  if (typeof know_from !== "string" || know_from.length > 255) {
+    return res
+      .status(400)
+      .json({ error: "Invalid know_from (max 255 chars)" });
+  }
+
+  // ✅ Handle last_contacted_at:
+  // - If provided → validate and use it
+  // - If not provided → default to "now"
+  let lastContactedValue;
+  if (last_contacted_at) {
+    const parsed = new Date(last_contacted_at);
+    if (Number.isNaN(parsed.getTime())) {
+      return res
+        .status(400)
+        .json({ error: "Invalid last_contacted_at (must be a valid date)" });
+    }
+    lastContactedValue = parsed;
+  } else {
+    lastContactedValue = new Date(); // default to today
+  }
+
+  try {
+    const query = `
+      INSERT INTO connections (
+        user_id,
         connection_name,
-        freq,
-        notes ?? null,
-        connection_type ?? null,
-        know_from ?? null,
-        isNaN(priority) ? 0 : priority,
-      ]);
-      return res.status(201).json({ connection: rows[0] });
-    } catch (err) {
-      console.error("Error creating connection:", err);
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  },
+        reminder_frequency_days,
+        notes,
+        connection_type,
+        know_from,
+        reach_out_priority,
+        last_contacted_at
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        COALESCE($4, ''),
+        COALESCE($5, 'acquaintance'),
+        COALESCE($6, ''),
+        COALESCE($7, 0),
+        $8
+      )
+      RETURNING id, connection_name, reach_out_priority, reminder_frequency_days, created_at, last_contacted_at
+    `;
+
+    const { rows } = await pool.query(query, [
+      userId,
+      connection_name,
+      freq,
+      notes ?? null,
+      connection_type ?? null,
+      know_from ?? null,
+      isNaN(priority) ? 0 : priority,
+      lastContactedValue,
+    ]);
+
+    return res.status(201).json({ connection: rows[0] });
+  } catch (err) {
+    console.error("Error creating connection:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+},
+
 
   // update an existing connection for the authenticated user
   updateConnection: async (req, res) => {
