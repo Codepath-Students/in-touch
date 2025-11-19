@@ -28,7 +28,7 @@ Backend: Express
 
 [User's can click to create a new connection with another user]
 
-[gif goes here]
+<img src="./gifs/add_edit_reachout_delete_connection.gif" alt="Signup/Landing Page Gif" />
 
 ### [Signup/Landing Page/Login Modal]
 
@@ -64,8 +64,9 @@ Backend: Express
 ### [Frequency of reminder]
 
 [User can assign 3 levels of reminder frequency depending on how often they want to keep in touch with different people.]
+[We are changing this to allow users to set there own frequency.]
+<img src="./gifs/add_edit_reachout_delete_connection.gif" alt="Signup/Landing Page Gif" />
 
-[gif goes here]
 
 ### [Individual Connection Space Page]
 
