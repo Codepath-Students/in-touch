@@ -80,6 +80,14 @@ const AuthenticationController = {
   loginWithEmail: async (req, res) => {
     const { email, password } = req.body;
     const user = await GeneralUtils.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (!user.is_email_verified) {
+      return res
+        .status(403)
+        .json({ message: "Email not verified. Please verify your email." });
+    }
     if (
       user &&
       (await AuthUtils.comparePassword(password, user.password_hash))
@@ -88,7 +96,7 @@ const AuthenticationController = {
       AuthUtils.setRefreshTokenCookie(res, tokens.refreshToken);
       return res.status(200).json({ accessToken: tokens.accessToken });
     } else {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid password" });
     }
   },
   signup: async (req, res) => {
